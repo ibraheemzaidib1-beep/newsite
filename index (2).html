@@ -1,0 +1,401 @@
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>BM Supermarket POS</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap"><style>
+  
+body{margin:0;font-family:'Cairo',sans-serif;background:linear-gradient(135deg,#251c4a,#0f3f4a);color:#fff}
+  
+.container{max-width:1200px;margin:30px auto;padding:20px;display:flex;gap:20px;flex-wrap:wrap;display:none}
+  
+.card{background:linear-gradient(135deg,#ffffff,#eef3ff);color:#111;border-radius:26px;box-shadow:0 25px 60px rgba(0,0,0,.25);padding:28px;margin-bottom:22px}
+  
+h2{margin-top:0;color:#5b21b6;font-weight:700}
+  
+input{width:100%;padding:12px;border-radius:14px;border:1px solid #bbb;margin:8px 0;font-size:15px}
+  
+button{border:none;border-radius:18px;padding:14px 22px;margin:4px;font-weight:700;cursor:pointer}
+  
+.primary{background:linear-gradient(45deg,#5b21b6,#7c3aed);color:#fff}
+  
+.success{background:linear-gradient(45deg,#0d9488,#14b8a6);color:#fff}
+  
+.danger{background:linear-gradient(45deg,#dc2626,#ef4444);color:#fff}
+  
+.ghost{background:#e5e7eb;color:#111}
+  
+table{width:100%;border-collapse:collapse;margin-top:10px}
+  
+th,td{text-align:center;padding:10px;border-bottom:1px solid #ddd}
+  
+td input{width:60px;padding:4px;text-align:center;border-radius:6px;border:1px solid #ccc}
+  
+.total{font-weight:700;margin-top:10px;text-align:right;font-size:20px}
+  
+.login-overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center}
+  
+.login-box{background:white;border-radius:24px;padding:36px;width:100%;max-width:420px;color:#111;box-shadow:0 25px 50px rgba(0,0,0,.35)}
+  
+.title{text-align:center;color:#5b21b6;font-weight:700;font-size:22px;margin-bottom:15px}
+  
+#changePanel{display:none;margin-top:15px}
+  
+.msg{text-align:center;font-size:13px;margin-top:6px}
+  
+</style></head><body><!-- تسجيل الدخول --><div id="login" class="login-overlay">  <div class="login-box"><div class="title">BM Supermarket POS</div>
+
+<input id="loginPass" type="password" placeholder="اكتب كلمة المرور واضغط Enter">
+
+<p id="loginMsg" class="msg" style="color:#ef4444"></p>
+
+<button class="ghost" onclick="toggleChangePanel()">تغيير كلمة المرور</button>
+
+<div id="changePanel">
+
+  <input id="oldPass" type="password" placeholder="كلمة المرور القديمة">
+
+  <input id="newPass" type="password" placeholder="كلمة المرور الجديدة">
+
+  <button class="primary" onclick="changePassword()">حفظ التغيير</button>
+
+  <p id="changeMsg" class="msg"></p>
+
+</div>
+
+  </div></div><!-- المحتوى الرئيسي --><div class="container">  <!-- العمود الأيسر -->  <div style="flex:1;min-width:300px"><div class="card">
+
+  <h2>إضافة / تعديل منتج</h2>
+
+  <input id="barcode" placeholder="باركود">
+
+  <input id="name" placeholder="اسم المنتج">
+
+  <input id="price" type="number" placeholder="السعر">
+
+  <button class="primary" onclick="saveProduct()">حفظ</button>
+
+</div>
+
+<div class="card" style="margin-top:20px">
+
+  <h2>البحث عن المنتجات</h2>
+
+  <input id="searchCode" placeholder="أدخل الباركود واضغط Enter">
+
+  <button class="primary" onclick="searchEvent()">بحث</button>
+
+</div>
+
+  </div>  <!-- العمود الأيمن -->  <div style="flex:2;min-width:500px"><div class="card">
+
+  <h2>المنتجات المضافة</h2>
+
+  <table>
+
+    <thead>
+
+      <tr>
+
+        <th>الباركود</th><th>الاسم</th><th>الكمية</th><th>السعر</th><th>إجراءات</th>
+
+      </tr>
+
+    </thead>
+
+    <tbody id="searchList"></tbody>
+
+  </table>
+
+
+
+  <div class="total" style="font-size:24px;margin-top:12px">الإجمالي: <span id="totalPrice">0</span></div>
+
+  <div class="total" style="font-size:20px;margin-top:8px">الخصم (%): <input id="discount" type="number" value="0" style="width:100px" onchange="updateTotals()"></div>
+
+  <div class="total" style="font-size:22px;margin-top:8px">بعد الخصم: <span id="afterDiscount">0</span></div>
+
+  <div class="total" style="font-size:22px;margin-top:8px">
+
+    المبلغ الذي أعطاه العميل: <input id="givenAmount" type="number" placeholder="أدخل المبلغ" oninput="calculateReturn()">
+
+  </div>
+
+  <div class="total" style="font-size:22px;margin-top:8px">المبلغ المراد إرجاعه: <span id="returnAmount">0</span></div>
+
+
+
+  <button class="success" onclick="saveInvoice()" style="font-size:16px;padding:14px 22px;margin-top:12px">طباعة الفاتورة</button>
+
+  <button class="danger" onclick="clearAllDataWithPass()" style="font-size:16px;padding:14px 22px;margin-top:12px">مسح جميع البيانات</button>
+
+</div>
+
+  </div></div><script>
+  
+// كلمات المرور
+  
+let sessionPass1="zmn2020zmn";
+  
+let sessionPass2="ئةى2020ئةى";
+  
+
+  
+// تسجيل الدخول
+  
+const loginPass=document.getElementById("loginPass");
+  
+loginPass.addEventListener("keypress",e=>{if(e.key==="Enter") checkLogin();});
+  
+function checkLogin(){
+  
+  const p=loginPass.value;
+  
+  if(p===sessionPass1||p===sessionPass2){
+  
+    document.getElementById("login").style.display="none";
+  
+    document.querySelector(".container").style.display="flex";
+  
+  }else document.getElementById("loginMsg").textContent="كلمة المرور غير صحيحة";
+  
+}
+  
+
+  
+// تغيير كلمة المرور
+  
+function toggleChangePanel(){
+  
+  const p=document.getElementById("changePanel");
+  
+  p.style.display=p.style.display==="none"?"block":"none";
+  
+}
+  
+function changePassword(){
+  
+  const oldP=document.getElementById("oldPass").value;
+  
+  const newP=document.getElementById("newPass").value;
+  
+  const msg=document.getElementById("changeMsg");
+  
+  if(oldP!==sessionPass1&&oldP!==sessionPass2){msg.style.color="#dc2626";msg.textContent="كلمة خاطئة";return;}
+  
+  if(!newP){msg.style.color="#dc2626";msg.textContent="اكتب كلمة جديدة";return;}
+  
+  sessionPass1=sessionPass2=newP;
+  
+  msg.style.color="#16a34a";msg.textContent="تم التغيير";
+  
+  document.getElementById("oldPass").value=""; document.getElementById("newPass").value="";
+  
+}
+  
+
+  
+// المنتجات والفاتورة
+  
+let products=[],foundProducts=[],editIndex=-1;
+  
+function loadData(){products=JSON.parse(localStorage.getItem("products")||"[]")}
+  
+function saveData(){localStorage.setItem("products",JSON.stringify(products))}
+  
+loadData();
+  
+
+  
+const barcode=document.getElementById("barcode");
+  
+const name=document.getElementById("name");
+  
+const price=document.getElementById("price");
+  
+const searchEl=document.getElementById("searchCode");
+  
+const searchList=document.getElementById("searchList");
+  
+const totalPrice=document.getElementById("totalPrice");
+  
+const afterDiscount=document.getElementById("afterDiscount");
+  
+
+  
+// إضافة / تعديل
+  
+function saveProduct(){
+  
+  const b=barcode.value.trim(),n=name.value.trim(),p=parseInt(price.value);
+  
+  if(!b||!n||isNaN(p)) return alert("أكمل البيانات");
+  
+  const i=products.findIndex(x=>x.barcode===b);
+  
+  if(i>-1) products[i]={barcode:b,name:n,price:p}; else products.push({barcode:b,name:n,price:p});
+  
+  saveData(); barcode.value=name.value=price.value="";
+  
+  updateTotals();
+  
+}
+  
+
+  
+// البحث
+  
+searchEl.addEventListener("keypress",e=>{if(e.key==="Enter") searchEvent();});
+  
+function searchEvent(){
+  
+  const c=searchEl.value.trim(); if(!c)return;
+  
+  const prod=products.find(p=>p.barcode===c);
+  
+  if(prod){
+  
+    let ex=foundProducts.find(p=>p.barcode===c);
+  
+    if(ex) ex.quantity++; else foundProducts.push({...prod,quantity:1});
+  
+    searchEl.value=""; updateTotals();
+  
+  }else alert("غير مسجل");
+  
+}
+  
+
+  
+// تحديث جدول الفاتورة وحساب الإجمالي والخصم
+  
+function updateTotals(){
+  
+  searchList.innerHTML=""; let total=0;
+  
+  foundProducts.forEach((p,i)=>{
+  
+    const sum=p.quantity*p.price; total+=sum;
+  
+    searchList.innerHTML+=`<tr>
+  
+      <td>${p.barcode}</td><td>${p.name}</td>
+  
+      <td><input type="number" min="1" value="${p.quantity}" onchange="changeQty(${i},this.value)"></td>
+  
+      <td>${sum}</td>
+  
+      <td>
+  
+        <button class="primary" onclick="editProduct(${i})">تعديل</button>
+  
+        <button class="danger" onclick="removeItem(${i})">X</button>
+  
+      </td>
+  
+    </tr>`;
+  
+  });
+  
+  totalPrice.textContent=total;
+  
+  const d=Math.min(Math.max(parseFloat(document.getElementById("discount").value)||0,0),100);
+  
+  afterDiscount.textContent=Math.round(total*(1-d/100));
+  
+  calculateReturn();
+  
+}
+  
+
+  
+function changeQty(i,v){v=parseInt(v)||1;foundProducts[i].quantity=v;updateTotals()}
+  
+function removeItem(i){foundProducts.splice(i,1);updateTotals()}
+  
+
+  
+// تعديل منتج موجود من الصف
+  
+function editProduct(i){
+  
+  const p = foundProducts[i];
+  
+  const newQty = parseInt(prompt("أدخل الكمية الجديدة:", p.quantity));
+  
+  if(!isNaN(newQty) && newQty>0){
+  
+    p.quantity = newQty;
+  
+    updateTotals();
+  
+  }
+  
+}
+  
+
+  
+// طباعة الفاتورة
+  
+function saveInvoice(){
+  
+  if(foundProducts.length===0)return alert("لا توجد منتجات");
+  
+  let t=`فاتورة\n\n`;
+  
+  foundProducts.forEach(p=>t+=`${p.name} | ${p.quantity} | ${p.price*p.quantity}\n`);
+  
+  t+=`\nالإجمالي: ${totalPrice.textContent}\nبعد الخصم: ${afterDiscount.textContent}\nالمبلغ الذي أعطاه العميل: ${document.getElementById("givenAmount").value || 0}\nالمبلغ المراد إرجاعه: ${document.getElementById("returnAmount").textContent}`;
+  
+  const w=window.open(""); w.document.write(`<pre>${t}</pre>`); w.print(); w.close();foundProducts=[]; updateTotals(); document.getElementById("givenAmount").value="";
+
+document.getElementById("returnAmount").textContent="0";
+
+}
+
+// حساب المرجوع
+
+function calculateReturn(){
+
+const total = parseFloat(afterDiscount.textContent) || 0;
+
+const given = parseFloat(document.getElementById("givenAmount").value) || 0;
+
+const ret = given - total;
+
+document.getElementById("returnAmount").textContent = ret>0?ret:0;
+
+}
+
+// مسح جميع البيانات (الباركودات + المنتجات المضافة) بكلمة المرور
+
+function clearAllDataWithPass(){
+
+const p = prompt("أدخل كلمة المرور لمسح جميع البيانات:");
+
+if(p === sessionPass1 || p === sessionPass2){
+
+// مسح كل البيانات
+
+localStorage.setItem("products", JSON.stringify([]));
+
+products = [];
+
+foundProducts = [];
+
+updateTotals();
+
+document.getElementById("givenAmount").value="";
+
+document.getElementById("returnAmount").textContent="0";
+
+alert("تم مسح جميع البيانات بالكامل (تم حذف جميع الباركودات والمنتجات المضافة)");
+
+}
+
+else {
+
+alert("كلمة المرور غير صحيحة");
+
+}
+
+}
+
+</script></body></html>
+
+سوي الكود مناسب للا يبادات يعني من ناحيه اللمس والتحكم والمقاسات
