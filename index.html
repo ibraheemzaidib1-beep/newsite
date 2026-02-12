@@ -26,6 +26,11 @@ td input{width:60px;padding:4px;text-align:center;border-radius:6px;border:1px s
 .title{text-align:center;color:#5b21b6;font-weight:700;font-size:22px;margin-bottom:15px}
 #msgBox{position:fixed;top:10px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:12px 24px;border-radius:12px;font-weight:700;opacity:0;transition:opacity 0.5s;z-index:2000;}
 #userControls{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:10px;z-index:100;}
+@media(max-width:768px){
+  .container{flex-direction:column;padding:10px;}
+  td input{width:40px;padding:2px;}
+  button,input{padding:10px;font-size:14px;}
+}
 </style>
 </head>
 <body>
@@ -132,11 +137,10 @@ function checkLogin(){
     currentUser=username;
     document.getElementById("loginScreen").classList.remove("show");
 
-    // إظهار الواجهة بشكل صحيح
     const container = document.querySelector(".container");
-    container.style.display="flex";       // عرض الواجهة
-    setTimeout(()=>{container.classList.add("show");},50); // تشغيل الأنيميشن
-    document.getElementById("userControls").style.display="flex"; // أزرار المستخدم
+    container.style.display="flex";       
+    setTimeout(()=>{container.classList.add("show");},50); 
+    document.getElementById("userControls").style.display="flex"; 
     loadUserData(); updateTotals(); showMsg(`تم تسجيل الدخول: ${username}`,"#16a34a");
   }else showMsg("اسم المستخدم أو كلمة المرور خاطئ","#dc2626");
 }
