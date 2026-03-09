@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لعبة الغميضة</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --panel: #13131a;
+    --border: #1e1e2e;
+    --green: #00ff88;
+    --red: #ff3355;
+    --gold: #ffcc00;
+    --blue: #4488ff;
+    --text: #e8e8f0;
+    --muted: #555570;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Tajawal', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content:'';
+    position:fixed; inset:0;
+    background: radial-gradient(ellipse at 20% 50%, rgba(0,255,136,0.04) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(255,51,85,0.04) 0%, transparent 60%);
+    pointer-events:none;
+  }
+
+  /* ---- SCREENS ---- */
+  .screen { display:none; animation: fadeIn .4s ease; }
+  .screen.active { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:20px; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ---- LOGO ---- */
+  .logo { font-size:3rem; font-weight:900; letter-spacing:2px; margin-bottom:6px; }
+  .logo span:first-child { color:var(--green); }
+  .logo span:last-child  { color:var(--red); }
+  .subtitle { color:var(--muted); font-size:.95rem; margin-bottom:40px; letter-spacing:4px; text-transform:uppercase; }
+
+  /* ---- CARD ---- */
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 0 40px rgba(0,0,0,.6);
+  }
+  .card-title { font-size:1.3rem; font-weight:700; margin-bottom:24px; color:var(--gold); text-align:center; }
+
+  /* ---- INPUTS ---- */
+  input[type=text], input[type=number] {
+    width:100%; padding:14px 16px;
+    background: #0d0d14; border:1px solid var(--border);
+    border-radius:10px; color:var(--text); font-family:'Tajawal',sans-serif; font-size:1rem;
+    outline:none; transition:.2s;
+    text-align:right;
+  }
+  input:focus { border-color:var(--green); box-shadow:0 0 0 3px rgba(0,255,136,.1); }
+  .input-group { margin-bottom:16px; }
+  .input-group label { display:block; font-size:.85rem; color:var(--muted); margin-bottom:6px; }
+
+  /* ---- BUTTONS ---- */
+  .btn {
+    display:block; width:100%; padding:14px;
+    border:none; border-radius:10px; cursor:pointer;
+    font-family:'Tajawal',sans-serif; font-size:1.05rem; font-weight:700;
+    transition:.15s; margin-bottom:10px;
+  }
+  .btn-green  { background:var(--green);  color:#000; }
+  .btn-red    { background:var(--red);    color:#fff; }
+  .btn-ghost  { background:transparent; border:1px solid var(--border); color:var(--text); }
+  .btn:hover  { filter:brightness(1.15); transform:translateY(-1px); }
+  .btn:active { transform:translateY(0); }
+  .btn:disabled { opacity:.4; cursor:not-allowed; transform:none; }
+
+  /* ---- ROOM CODE ---- */
+  .room-code {
+    font-size:3rem; font-weight:900; letter-spacing:10px;
+    color:var(--gold); text-align:center; margin:20px 0;
+    text-shadow:0 0 20px rgba(255,204,0,.3);
+  }
+  .room-code-label { text-align:center; color:var(--muted); font-size:.85rem; margin-bottom:4px; }
+
+  /* ---- PLAYERS LIST ---- */
+  .players-list { list-style:none; margin-top:8px; }
+  .players-list li {
+    display:flex; align-items:center; gap:10px;
+    padding:10px 14px; border-radius:8px;
+    background:#0d0d14; border:1px solid var(--border);
+    margin-bottom:8px; transition:.3s;
+  }
+  .player-dot { width:10px; height:10px; border-radius:50%; background:var(--muted); flex-shrink:0; }
+  .player-dot.ready { background:var(--green); box-shadow:0 0 8px var(--green); }
+  .player-dot.seeker { background:var(--red); box-shadow:0 0 8px var(--red); }
+  .player-dot.found  { background:#444; }
+  .player-name { flex:1; font-weight:700; }
+  .player-hint { font-size:.8rem; color:var(--muted); font-style:italic; max-width:160px; text-align:left; }
+  .player-code { font-size:.75rem; color:var(--blue); font-weight:700; margin-right:auto; }
+  .player-badge {
+    font-size:.7rem; padding:2px 8px; border-radius:20px;
+    font-weight:700; text-transform:uppercase; letter-spacing:1px;
+  }
+  .badge-green { background:rgba(0,255,136,.15); color:var(--green); border:1px solid rgba(0,255,136,.3); }
+  .badge-red   { background:rgba(255,51,85,.15);  color:var(--red);   border:1px solid rgba(255,51,85,.3); }
+  .badge-gold  { background:rgba(255,204,0,.15);  color:var(--gold);  border:1px solid rgba(255,204,0,.3); }
+  .badge-gray  { background:rgba(80,80,100,.3);   color:#999;         border:1px solid rgba(80,80,100,.4); }
+
+  /* ---- TIMER ---- */
+  .timer-wrap { text-align:center; margin:20px 0; }
+  .timer-big {
+    font-size:5rem; font-weight:900; line-height:1;
+    font-variant-numeric: tabular-nums;
+  }
+  .timer-big.green { color:var(--green); text-shadow:0 0 30px rgba(0,255,136,.4); }
+  .timer-big.red   { color:var(--red);   text-shadow:0 0 30px rgba(255,51,85,.4); animation:pulse 1s infinite; }
+  .timer-big.gold  { color:var(--gold);  text-shadow:0 0 30px rgba(255,204,0,.4); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.6} }
+  .timer-label { font-size:.85rem; color:var(--muted); margin-top:4px; letter-spacing:2px; }
+
+  /* ---- SEEKER REVEAL ---- */
+  .seeker-reveal {
+    text-align:center; padding:20px;
+    border:2px solid var(--red); border-radius:16px;
+    background:rgba(255,51,85,.08); margin-bottom:20px;
+    animation: glow-red 2s infinite;
+  }
+  @keyframes glow-red { 0%,100%{box-shadow:0 0 10px rgba(255,51,85,.2)} 50%{box-shadow:0 0 30px rgba(255,51,85,.5)} }
+  .seeker-reveal .label { font-size:.8rem; color:var(--muted); margin-bottom:4px; letter-spacing:2px; }
+  .seeker-reveal .name  { font-size:2rem; font-weight:900; color:var(--red); }
+
+  /* ---- PHASE BANNER ---- */
+  .phase-banner {
+    text-align:center; padding:10px 20px;
+    border-radius:8px; margin-bottom:16px;
+    font-weight:700; font-size:.9rem; letter-spacing:2px;
+  }
+  .phase-hide { background:rgba(0,255,136,.1); color:var(--green); border:1px solid rgba(0,255,136,.2); }
+  .phase-seek { background:rgba(255,51,85,.1); color:var(--red);   border:1px solid rgba(255,51,85,.2); }
+  .phase-hint { background:rgba(255,204,0,.1); color:var(--gold);  border:1px solid rgba(255,204,0,.2); }
+
+  /* ---- HINT INPUT AREA ---- */
+  .hint-area {
+    background:rgba(255,204,0,.06); border:1px solid rgba(255,204,0,.2);
+    border-radius:12px; padding:16px; margin-bottom:16px;
+  }
+  .hint-area .hint-label { font-size:.8rem; color:var(--gold); margin-bottom:8px; font-weight:700; }
+
+  /* ---- FIND PLAYER ---- */
+  .find-area {
+    background:rgba(68,136,255,.06); border:1px solid rgba(68,136,255,.2);
+    border-radius:12px; padding:16px; margin-bottom:16px;
+  }
+  .find-area .find-label { font-size:.8rem; color:var(--blue); margin-bottom:8px; font-weight:700; }
+
+  /* ---- PROGRESS BAR ---- */
+  .progress-bar { height:4px; background:var(--border); border-radius:2px; overflow:hidden; margin-bottom:16px; }
+  .progress-fill { height:100%; border-radius:2px; transition:width .5s linear; }
+
+  /* ---- TOAST ---- */
+  #toast {
+    position:fixed; bottom:30px; left:50%; transform:translateX(-50%);
+    background:#1a1a2e; border:1px solid var(--border);
+    padding:12px 24px; border-radius:30px; font-size:.9rem;
+    opacity:0; transition:.3s; pointer-events:none; z-index:999;
+    white-space:nowrap;
+  }
+  #toast.show { opacity:1; }
+
+  /* ---- GAME OVER ---- */
+  .winner-banner {
+    font-size:1.8rem; font-weight:900; text-align:center;
+    padding:20px; border-radius:12px; margin-bottom:20px;
+  }
+
+  /* ---- SCROLLABLE ---- */
+  .scroll-box { max-height:300px; overflow-y:auto; }
+  .scroll-box::-webkit-scrollbar { width:4px; }
+  .scroll-box::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+
+  /* ---- DIVIDER ---- */
+  .divider { display:flex; align-items:center; gap:12px; margin:16px 0; color:var(--muted); font-size:.8rem; }
+  .divider::before, .divider::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* ---- PLAYER SECRET CODE TAG ---- */
+  .my-code-box {
+    text-align:center; background:rgba(68,136,255,.08);
+    border:1px solid rgba(68,136,255,.25); border-radius:10px; padding:12px; margin-bottom:16px;
+  }
+  .my-code-box .label { font-size:.75rem; color:var(--muted); margin-bottom:4px; }
+  .my-code-box .code  { font-size:2.5rem; font-weight:900; color:var(--blue); letter-spacing:8px; }
+
+  @media(max-width:480px){ .logo{font-size:2.2rem} .timer-big{font-size:3.5rem} .room-code{font-size:2.2rem;letter-spacing:6px} }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════ SCREEN: WELCOME ════════════════════════════════ -->
+<div id="s-welcome" class="screen active">
+  <div class="logo"><span>الغُمَّيضة</span> <span>🔍</span></div>
+  <div class="subtitle">Hide &amp; Seek Online</div>
+  <div class="card">
+    <div class="card-title">أدخل اسمك للبدء</div>
+    <div class="input-group">
+      <label>اسمك في اللعبة</label>
+      <input type="text" id="inp-name" placeholder="مثال: أحمد" maxlength="20">
+    </div>
+    <button class="btn btn-green" onclick="enterName()">متابعة ←</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ SCREEN: LOBBY ════════════════════════════════ -->
+<div id="s-lobby" class="screen">
+  <div class="logo"><span>الغُمَّيضة</span> <span>🔍</span></div>
+  <div class="subtitle" id="lobby-welcome"></div>
+  <div class="card">
+    <button class="btn btn-green" onclick="showScreen('s-create')">➕ إنشاء غرفة</button>
+    <div class="divider">أو</div>
+    <div class="input-group">
+      <label>كود الغرفة (6 أرقام)</label>
+      <input type="text" id="inp-join-code" placeholder="مثال: 482910" maxlength="6" oninput="this.value=this.value.replace(/\D/g,'')">
+    </div>
+    <button class="btn btn-ghost" onclick="joinRoom()">🚪 دخول غرفة</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ SCREEN: CREATE ════════════════════════════════ -->
+<div id="s-create" class="screen">
+  <div class="card">
+    <div class="card-title">⚙️ إعدادات الغرفة</div>
+    <div class="input-group">
+      <label>عدد اللاعبين (2–10)</label>
+      <input type="number" id="inp-maxplayers" value="4" min="2" max="10">
+    </div>
+    <button class="btn btn-green" onclick="createRoom()">إنشاء الغرفة ✓</button>
+    <button class="btn btn-ghost" onclick="showScreen('s-lobby')">← رجوع</button>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ SCREEN: WAITING ════════════════════════════════ -->
+<div id="s-waiting" class="screen">
+  <div class="card" style="max-width:500px">
+    <div class="room-code-label">كود الغرفة</div>
+    <div class="room-code" id="disp-room-code">------</div>
+    <div style="text-align:center;font-size:.8rem;color:var(--muted);margin-bottom:20px">شارك الكود مع أصدقائك</div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span style="font-size:.85rem;color:var(--muted)">اللاعبون</span>
+      <span id="disp-player-count" style="font-size:.85rem;color:var(--gold)">0/0</span>
+    </div>
+    <div class="scroll-box">
+      <ul class="players-list" id="waiting-players"></ul>
+    </div>
+
+    <div id="waiting-actions" style="margin-top:20px"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ SCREEN: GAME ════════════════════════════════ -->
+<div id="s-game" class="screen">
+  <div style="width:100%;max-width:520px">
+
+    <!-- Phase banner -->
+    <div class="phase-banner" id="phase-banner">الاستعداد</div>
+
+    <!-- Seeker card (hide phase) -->
+    <div class="seeker-reveal" id="seeker-box" style="display:none">
+      <div class="label">الباحث هو</div>
+      <div class="name" id="seeker-name-disp"></div>
+      <div style="font-size:.75rem;color:var(--muted);margin-top:6px">الجميع يختبئ الآن!</div>
+    </div>
+
+    <!-- Timer -->
+    <div class="timer-wrap">
+      <div class="timer-big green" id="timer-disp">0:00</div>
+      <div class="timer-label" id="timer-label">⏱</div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:100%;background:var(--green)"></div></div>
+
+    <!-- My code (hiders) -->
+    <div class="my-code-box" id="my-code-box" style="display:none">
+      <div class="label">🔑 رقمك السري — لا تعطيه لأحد!</div>
+      <div class="code" id="my-secret-code">--</div>
+    </div>
+
+    <!-- Hint input (shown when 5 min left) -->
+    <div class="hint-area" id="hint-area" style="display:none">
+      <div class="hint-label">💡 أرسل تلميحاً عن مكانك (وقت التلميح!)</div>
+      <div class="input-group" style="margin-bottom:8px">
+        <input type="text" id="inp-hint" placeholder="مثال: قريب من الباب" maxlength="50">
+      </div>
+      <button class="btn btn-ghost" style="margin:0;padding:10px" onclick="sendHint()">إرسال التلميح</button>
+    </div>
+
+    <!-- Find player (seeker) -->
+    <div class="find-area" id="find-area" style="display:none">
+      <div class="find-label">🎯 وجدت لاعباً؟ أدخل رقمه السري</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="text" id="inp-find-code" placeholder="مثال: 47" maxlength="2" oninput="this.value=this.value.replace(/\D/g,'')" style="width:90px;text-align:center;font-size:1.3rem;letter-spacing:4px">
+        <button class="btn btn-red" style="margin:0;flex:1;padding:10px" onclick="tryFindPlayer()">تأكيد ✓</button>
+      </div>
+    </div>
+
+    <!-- Players list -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span style="font-size:.85rem;color:var(--muted)">اللاعبون</span>
+      <span id="game-found-count" style="font-size:.8rem;color:var(--muted)"></span>
+    </div>
+    <div class="scroll-box">
+      <ul class="players-list" id="game-players"></ul>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════ SCREEN: GAME OVER ════════════════════════════════ -->
+<div id="s-gameover" class="screen">
+  <div class="card" style="max-width:480px">
+    <div class="winner-banner" id="go-banner"></div>
+    <div class="scroll-box">
+      <ul class="players-list" id="go-players"></ul>
+    </div>
+    <div style="margin-top:20px">
+      <button class="btn btn-green" onclick="restartGame()">🔄 لعبة جديدة</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- AUDIO -->
+<audio id="snd-found"  src="data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAA..." preload></audio>
+
+<script>
+// ════════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════════
+const STATE = {
+  myName: '',
+  roomCode: '',
+  isHost: false,
+  maxPlayers: 4,
+  players: [],        // [{name,ready,role,secretCode,hint,found}]
+  phase: 'waiting',   // waiting | hide | seek | gameover
+  seekerName: '',
+  timerInterval: null,
+  timerSeconds: 0,
+  totalSeconds: 0,
+  hintSent: false,
+  hintPhaseStarted: false,
+};
+
+// ════════════════════════════════════════════════════════
+//  SHARED DATA (localStorage as fake "server" for same device / demo)
+//  In real multiplayer you'd use WebSockets/Firebase etc.
+//  Here we simulate via localStorage + polling
+// ════════════════════════════════════════════════════════
+function saveRoom() {
+  localStorage.setItem('ghm_room_' + STATE.roomCode, JSON.stringify({
+    code: STATE.roomCode,
+    maxPlayers: STATE.maxPlayers,
+    players: STATE.players,
+    phase: STATE.phase,
+    seekerName: STATE.seekerName,
+    timerSeconds: STATE.timerSeconds,
+    totalSeconds: STATE.totalSeconds,
+    hintPhaseStarted: STATE.hintPhaseStarted,
+    ts: Date.now(),
+  }));
+}
+function loadRoom(code) {
+  const d = localStorage.getItem('ghm_room_' + code);
+  return d ? JSON.parse(d) : null;
+}
+function syncFromRoom(data) {
+  STATE.maxPlayers     = data.maxPlayers;
+  STATE.seekerName     = data.seekerName;
+  STATE.hintPhaseStarted = data.hintPhaseStarted;
+  // Merge players (keep local ready/hint state if mine)
+  data.players.forEach(p => {
+    const local = STATE.players.find(x=>x.name===p.name);
+    if (local) {
+      Object.assign(local, p);
+    } else {
+      STATE.players.push(p);
+    }
+  });
+  // Remove players no longer in room
+  STATE.players = STATE.players.filter(p => data.players.find(x=>x.name===p.name));
+}
+
+// ════════════════════════════════════════════════════════
+//  NAV
+// ════════════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function toast(msg, dur=2500) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), dur);
+}
+
+// ════════════════════════════════════════════════════════
+//  WELCOME
+// ════════════════════════════════════════════════════════
+function enterName() {
+  const n = document.getElementById('inp-name').value.trim();
+  if (!n) { toast('❗ أدخل اسمك أولاً'); return; }
+  STATE.myName = n;
+  document.getElementById('lobby-welcome').textContent = 'مرحباً ' + n + ' 👋';
+  showScreen('s-lobby');
+}
+
+// ════════════════════════════════════════════════════════
+//  CREATE ROOM
+// ════════════════════════════════════════════════════════
+function createRoom() {
+  const mp = parseInt(document.getElementById('inp-maxplayers').value);
+  if (mp<2||mp>10) { toast('❗ عدد اللاعبين بين 2 و 10'); return; }
+  STATE.maxPlayers = mp;
+  STATE.roomCode = Math.floor(100000 + Math.random()*900000).toString();
+  STATE.isHost = true;
+  STATE.players = [makePlayer(STATE.myName)];
+  STATE.phase = 'waiting';
+  saveRoom();
+  openWaiting();
+}
+
+function makePlayer(name) {
+  return { name, ready:false, role:'hider', secretCode: padCode(Math.floor(10+Math.random()*90)), hint:'', found:false };
+}
+function padCode(n) { return String(n).padStart(2,'0'); }
+
+// ════════════════════════════════════════════════════════
+//  JOIN ROOM
+// ════════════════════════════════════════════════════════
+function joinRoom() {
+  const code = document.getElementById('inp-join-code').value.trim();
+  if (code.length!==6) { toast('❗ الكود يجب أن يكون 6 أرقام'); return; }
+  const data = loadRoom(code);
+  if (!data) { toast('❌ الغرفة غير موجودة'); return; }
+  if (data.phase!=='waiting') { toast('❌ اللعبة بدأت بالفعل'); return; }
+  if (data.players.length >= data.maxPlayers) { toast('❌ الغرفة ممتلئة'); return; }
+  if (data.players.find(p=>p.name===STATE.myName)) { toast('❗ الاسم مستخدم بالفعل'); return; }
+  STATE.roomCode = code;
+  STATE.isHost = false;
+  STATE.maxPlayers = data.maxPlayers;
+  STATE.players = data.players;
+  STATE.players.push(makePlayer(STATE.myName));
+  STATE.phase = 'waiting';
+  saveRoom();
+  openWaiting();
+}
+
+// ════════════════════════════════════════════════════════
+//  WAITING ROOM
+// ════════════════════════════════════════════════════════
+let pollInterval = null;
+function openWaiting() {
+  showScreen('s-waiting');
+  document.getElementById('disp-room-code').textContent = STATE.roomCode;
+  renderWaiting();
+  clearInterval(pollInterval);
+  pollInterval = setInterval(pollWaiting, 1000);
+}
+
+function pollWaiting() {
+  const data = loadRoom(STATE.roomCode);
+  if (!data) return;
+  // If game started, switch to game
+  if (data.phase==='hide' || data.phase==='seek') {
+    clearInterval(pollInterval);
+    syncFromRoom(data);
+    STATE.phase = data.phase;
+    startGameScreen(data.phase);
+    return;
+  }
+  syncFromRoom(data);
+  renderWaiting();
+}
+
+function renderWaiting() {
+  const list = document.getElementById('waiting-players');
+  list.innerHTML = '';
+  const me = STATE.players.find(p=>p.name===STATE.myName);
+  STATE.players.forEach(p => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <span class="player-dot ${p.ready?'ready':''}"></span>
+      <span class="player-name">${p.name}${p.name===STATE.myName?' (أنا)':''}</span>
+      <span class="player-badge ${p.ready?'badge-green':'badge-gray'}">${p.ready?'جاهز':'انتظار'}</span>
+    `;
+    list.appendChild(li);
+  });
+  document.getElementById('disp-player-count').textContent = STATE.players.length + '/' + STATE.maxPlayers;
+
+  const actions = document.getElementById('waiting-actions');
+  actions.innerHTML = '';
+
+  if (!me.ready) {
+    const btn = document.createElement('button');
+    btn.className='btn btn-green'; btn.textContent='✅ أنا جاهز!';
+    btn.onclick = markReady;
+    actions.appendChild(btn);
+  } else {
+    const p = document.createElement('p');
+    p.style.cssText='text-align:center;color:var(--green);font-weight:700;';
+    p.textContent='✅ أنت جاهز! بانتظار الآخرين...';
+    actions.appendChild(p);
+  }
+
+  // Host sees start button when all ready
+  if (STATE.isHost) {
+    const allReady = STATE.players.length===STATE.maxPlayers && STATE.players.every(p=>p.ready);
+    const btn2 = document.createElement('button');
+    btn2.className='btn btn-red';
+    btn2.textContent='🚀 بدء اللعبة';
+    btn2.disabled = !allReady;
+    btn2.onclick = hostStartGame;
+    actions.appendChild(btn2);
+    if (!allReady) {
+      const note = document.createElement('p');
+      note.style.cssText='text-align:center;font-size:.8rem;color:var(--muted);margin-top:8px';
+      note.textContent='انتظر حتى يكون جميع اللاعبين جاهزين';
+      actions.appendChild(note);
+    }
+  }
+}
+
+function markReady() {
+  const me = STATE.players.find(p=>p.name===STATE.myName);
+  me.ready = true;
+  saveRoom();
+  renderWaiting();
+}
+
+function hostStartGame() {
+  // Pick random seeker
+  const idx = Math.floor(Math.random()*STATE.players.length);
+  STATE.players.forEach((p,i)=>p.role = i===idx?'seeker':'hider');
+  STATE.seekerName = STATE.players[idx].name;
+  STATE.phase = 'hide';
+  STATE.timerSeconds = 90; // 1.5 min hide
+  STATE.totalSeconds = 90;
+  STATE.hintPhaseStarted = false;
+  saveRoom();
+  clearInterval(pollInterval);
+  startGameScreen('hide');
+}
+
+// ════════════════════════════════════════════════════════
+//  GAME SCREEN
+// ════════════════════════════════════════════════════════
+function startGameScreen(phase) {
+  showScreen('s-game');
+  STATE.phase = phase;
+  updateGameUI();
+  clearInterval(STATE.timerInterval);
+  startTimerPoll();
+}
+
+function startTimerPoll() {
+  STATE.timerInterval = setInterval(gameTick, 1000);
+}
+
+function gameTick() {
+  // Always reload latest from storage
+  const data = loadRoom(STATE.roomCode);
+  if (!data) return;
+  syncFromRoom(data);
+
+  if (data.phase==='gameover') {
+    clearInterval(STATE.timerInterval);
+    STATE.phase='gameover';
+    showGameOver();
+    return;
+  }
+
+  // Host drives the timer
+  if (STATE.isHost) {
+    STATE.timerSeconds = data.timerSeconds - 1;
+    if (STATE.timerSeconds <= 0) {
+      if (data.phase==='hide') {
+        // Switch to seek phase
+        STATE.phase = 'seek';
+        STATE.timerSeconds = 7*60;
+        STATE.totalSeconds = 7*60;
+        STATE.hintPhaseStarted = false;
+        saveRoom();
+      } else if (data.phase==='seek') {
+        // Time up - hiders win
+        STATE.phase='gameover';
+        saveRoom();
+        clearInterval(STATE.timerInterval);
+        showGameOver();
+        return;
+      }
+    } else {
+      // Check hint phase (5 min left = 300s)
+      if (data.phase==='seek' && STATE.timerSeconds<=300 && !data.hintPhaseStarted) {
+        STATE.hintPhaseStarted = true;
+      }
+      STATE.phase = data.phase;
+      saveRoom();
+    }
+  } else {
+    // Non-host: read timer from storage
+    STATE.timerSeconds = data.timerSeconds;
+    STATE.phase = data.phase;
+  }
+  updateGameUI();
+}
+
+function updateGameUI() {
+  const me = STATE.players.find(p=>p.name===STATE.myName);
+  const isSeeker = me && me.role==='seeker';
+  const isSeeking = STATE.phase==='seek';
+
+  // Phase banner
+  const banner = document.getElementById('phase-banner');
+  if (STATE.phase==='hide') {
+    banner.textContent='🏃 مرحلة الاختباء — اختبئ الآن!';
+    banner.className='phase-banner phase-hide';
+  } else if (STATE.phase==='seek') {
+    if (STATE.hintPhaseStarted) {
+      banner.textContent='💡 وقت التلميحات + البحث!';
+      banner.className='phase-banner phase-hint';
+    } else {
+      banner.textContent='🔍 مرحلة البحث — الباحث يبحث!';
+      banner.className='phase-banner phase-seek';
+    }
+  }
+
+  // Seeker box
+  const seekerBox = document.getElementById('seeker-box');
+  if (STATE.phase==='hide') {
+    seekerBox.style.display='block';
+    document.getElementById('seeker-name-disp').textContent = STATE.seekerName;
+  } else { seekerBox.style.display='none'; }
+
+  // Timer
+  const secs = Math.max(0, STATE.timerSeconds||0);
+  const m=Math.floor(secs/60), s=secs%60;
+  const timerEl=document.getElementById('timer-disp');
+  timerEl.textContent=m+':'+(s<10?'0':'')+s;
+  timerEl.className='timer-big '+(secs<=30?'red':(STATE.phase==='hide'?'green':'gold'));
+  document.getElementById('timer-label').textContent=STATE.phase==='hide'?'⏱ وقت الاختباء':'⏱ وقت البحث';
+
+  // Progress
+  const pct = STATE.totalSeconds>0 ? (secs/STATE.totalSeconds)*100 : 0;
+  const fill = document.getElementById('prog-fill');
+  fill.style.width=pct+'%';
+  fill.style.background=secs<=30?'var(--red)':(STATE.phase==='hide'?'var(--green)':'var(--gold)');
+
+  // My code box (hiders only)
+  const codeBox = document.getElementById('my-code-box');
+  if (me && me.role==='hider') {
+    codeBox.style.display='block';
+    document.getElementById('my-secret-code').textContent=me.secretCode;
+  } else { codeBox.style.display='none'; }
+
+  // Hint area (hiders, seek phase, hint time, not yet sent)
+  const hintArea=document.getElementById('hint-area');
+  if (!isSeeker && isSeeking && STATE.hintPhaseStarted && !STATE.hintSent && me && !me.found) {
+    hintArea.style.display='block';
+  } else { hintArea.style.display='none'; }
+
+  // Find area (seeker only, seek phase)
+  const findArea=document.getElementById('find-area');
+  if (isSeeker && isSeeking) {
+    findArea.style.display='block';
+  } else { findArea.style.display='none'; }
+
+  // Players list
+  renderGamePlayers();
+
+  // Found count
+  const found=STATE.players.filter(p=>p.found&&p.role==='hider').length;
+  const total=STATE.players.filter(p=>p.role==='hider').length;
+  document.getElementById('game-found-count').textContent=`تم إيجاد ${found} من ${total}`;
+
+  // Check all found
+  if (isSeeking && STATE.isHost && total>0 && found===total) {
+    STATE.phase='gameover';
+    saveRoom();
+    clearInterval(STATE.timerInterval);
+    showGameOver();
+  }
+}
+
+function renderGamePlayers() {
+  const list = document.getElementById('game-players');
+  list.innerHTML='';
+  STATE.players.forEach(p=>{
+    const li=document.createElement('li');
+    let dot='player-dot';
+    let badge='';
+    if (p.role==='seeker') { dot+=' seeker'; badge=`<span class="player-badge badge-red">باحث</span>`; }
+    else if (p.found) { dot+=' found'; badge=`<span class="player-badge badge-gray">وُجد</span>`; }
+    else { dot+=' ready'; badge=`<span class="player-badge badge-green">مختبئ</span>`; }
+
+    const hintHtml = p.hint ? `<span class="player-hint">💬 ${p.hint}</span>` : '';
+    const codeHtml = (STATE.players.find(x=>x.name===STATE.myName)?.role==='seeker' && p.role==='hider' && !p.found)
+      ? `<span class="player-code">#${p.secretCode}</span>` : '';
+
+    li.innerHTML=`
+      <span class="${dot}"></span>
+      <span class="player-name">${p.name}${p.name===STATE.myName?' (أنا)':''}</span>
+      ${hintHtml}
+      ${codeHtml}
+      ${badge}
+    `;
+    // Strikethrough found
+    if (p.found) li.style.opacity='.5';
+    list.appendChild(li);
+  });
+}
+
+// ════════════════════════════════════════════════════════
+//  HINT
+// ════════════════════════════════════════════════════════
+function sendHint() {
+  const h = document.getElementById('inp-hint').value.trim();
+  if (!h) { toast('❗ اكتب تلميحاً'); return; }
+  const me = STATE.players.find(p=>p.name===STATE.myName);
+  me.hint = h;
+  STATE.hintSent = true;
+  saveRoom();
+  toast('💬 تم إرسال التلميح!');
+  document.getElementById('hint-area').style.display='none';
+}
+
+// ════════════════════════════════════════════════════════
+//  FIND PLAYER (seeker)
+// ════════════════════════════════════════════════════════
+function tryFindPlayer() {
+  const code = document.getElementById('inp-find-code').value.trim();
+  if (code.length!==2) { toast('❗ الرقم يجب أن يكون رقمين'); return; }
+  const target = STATE.players.find(p=>p.secretCode===code && p.role==='hider' && !p.found);
+  if (!target) { toast('❌ الرقم خاطئ أو اللاعب وُجد'); return; }
+  target.found=true;
+  document.getElementById('inp-find-code').value='';
+  saveRoom();
+  playFoundSound();
+  toast(`🎉 وجدت ${target.name}!`);
+  updateGameUI();
+}
+
+// ════════════════════════════════════════════════════════
+//  SOUND
+// ════════════════════════════════════════════════════════
+function playFoundSound() {
+  try {
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    [523,659,784,1047].forEach((f,i)=>{
+      const o=ctx.createOscillator(), g=ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value=f; o.type='sine';
+      g.gain.setValueAtTime(0,ctx.currentTime+i*.15);
+      g.gain.linearRampToValueAtTime(.3,ctx.currentTime+i*.15+.05);
+      g.gain.linearRampToValueAtTime(0,ctx.currentTime+i*.15+.25);
+      o.start(ctx.currentTime+i*.15);
+      o.stop(ctx.currentTime+i*.15+.3);
+    });
+  } catch(e){}
+}
+
+// ════════════════════════════════════════════════════════
+//  GAME OVER
+// ════════════════════════════════════════════════════════
+function showGameOver() {
+  clearInterval(STATE.timerInterval);
+  clearInterval(pollInterval);
+  showScreen('s-gameover');
+
+  const found=STATE.players.filter(p=>p.found&&p.role==='hider').length;
+  const total=STATE.players.filter(p=>p.role==='hider').length;
+  const seekerWon = found===total;
+
+  const banner=document.getElementById('go-banner');
+  if (seekerWon) {
+    banner.textContent='🔍 الباحث فاز! وجد الجميع';
+    banner.style.cssText='background:rgba(255,51,85,.15);color:var(--red);border:1px solid rgba(255,51,85,.3);border-radius:12px;padding:20px;font-size:1.8rem;font-weight:900;text-align:center;margin-bottom:20px';
+  } else {
+    banner.textContent='🎉 المختبئون فازوا! انتهى الوقت';
+    banner.style.cssText='background:rgba(0,255,136,.1);color:var(--green);border:1px solid rgba(0,255,136,.25);border-radius:12px;padding:20px;font-size:1.8rem;font-weight:900;text-align:center;margin-bottom:20px';
+  }
+
+  const list=document.getElementById('go-players');
+  list.innerHTML='';
+  STATE.players.forEach(p=>{
+    const li=document.createElement('li');
+    let dot='player-dot';
+    let badge='';
+    if (p.role==='seeker') { dot+=' seeker'; badge=`<span class="player-badge badge-red">باحث</span>`; }
+    else if (p.found) { dot+=' found'; badge=`<span class="player-badge badge-gray">وُجد</span>`; li.style.opacity='.6'; }
+    else { dot+=' ready'; badge=`<span class="player-badge badge-green">نجا! 🏆</span>`; }
+    li.innerHTML=`<span class="${dot}"></span><span class="player-name">${p.name}</span>${badge}`;
+    list.appendChild(li);
+  });
+}
+
+function restartGame() {
+  if (STATE.isHost) {
+    // Reset room to waiting
+    STATE.phase='waiting';
+    STATE.players.forEach(p=>{ p.ready=false; p.role='hider'; p.hint=''; p.found=false; p.secretCode=padCode(Math.floor(10+Math.random()*90)); });
+    STATE.seekerName='';
+    STATE.hintSent=false;
+    STATE.hintPhaseStarted=false;
+    saveRoom();
+    openWaiting();
+  } else {
+    // Non-host: go back to lobby and rejoin
+    showScreen('s-lobby');
+  }
+}
+
+// ════════════════════════════════════════════════════════
+//  ENTER KEY
+// ════════════════════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  if (e.key!=='Enter') return;
+  if (document.getElementById('s-welcome').classList.contains('active')) enterName();
+  if (document.getElementById('s-lobby').classList.contains('active') && document.activeElement===document.getElementById('inp-join-code')) joinRoom();
+});
+</script>
+</body>
+</html>
