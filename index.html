@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>نظام تسجيل QR</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --green: #1D9E75;
+    --green-dark: #0F6E56;
+    --green-light: #E1F5EE;
+    --red: #E24B4A;
+    --red-light: #FCEBEB;
+    --bg: #F7F6F2;
+    --card: #FFFFFF;
+    --border: rgba(0,0,0,0.1);
+    --text: #1a1a1a;
+    --text-muted: #6b6b6b;
+    --accent: #1D9E75;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Tajawal', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    direction: rtl;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    background: var(--green);
+    color: #fff;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(29,158,117,0.3);
+  }
+  .topbar-title { font-size: 18px; font-weight: 800; letter-spacing: -0.3px; }
+  .topbar-sub { font-size: 12px; opacity: 0.8; margin-top: 2px; }
+  .topbar-icon {
+    width: 42px; height: 42px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+
+  /* TABS */
+  .tabs-wrap { background: #fff; border-bottom: 1px solid var(--border); padding: 0 16px; }
+  .tabs { display: flex; gap: 0; max-width: 680px; margin: 0 auto; }
+  .tab {
+    flex: 1; padding: 14px 8px;
+    border: none; background: transparent; cursor: pointer;
+    font-size: 14px; font-weight: 600; font-family: 'Tajawal', sans-serif;
+    color: var(--text-muted);
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+  }
+  .tab.active { color: var(--green); border-bottom-color: var(--green); }
+  .tab:hover:not(.active) { color: var(--text); }
+
+  /* CONTENT */
+  .content { max-width: 680px; margin: 0 auto; padding: 20px 16px 40px; }
+
+  .panel { display: none; animation: fadeUp 0.25s ease; }
+  .panel.active { display: block; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+  /* CARD */
+  .card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .card-title {
+    font-size: 15px; font-weight: 700; color: var(--text);
+    margin-bottom: 16px; padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-title span { font-size: 18px; }
+
+  /* FORM */
+  .form-group { margin-bottom: 14px; }
+  label { display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+  input[type=text], input[type=number] {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 14px; font-family: 'Tajawal', sans-serif;
+    color: var(--text);
+    background: #fafafa;
+    transition: border-color 0.15s;
+  }
+  input:focus { outline: none; border-color: var(--green); background: #fff; }
+  .row { display: flex; gap: 12px; }
+  .row .form-group { flex: 1; }
+
+  /* BUTTONS */
+  .btn {
+    padding: 11px 20px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    font-size: 14px; font-weight: 700;
+    font-family: 'Tajawal', sans-serif;
+    color: var(--text);
+    transition: all 0.15s;
+  }
+  .btn:hover { background: var(--bg); }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary {
+    background: var(--green); color: #fff;
+    border-color: var(--green);
+  }
+  .btn-primary:hover { background: var(--green-dark); border-color: var(--green-dark); }
+  .btn-danger { border-color: var(--red); color: var(--red); }
+  .btn-danger:hover { background: var(--red-light); }
+  .btn-full { width: 100%; font-size: 15px; padding: 13px; }
+
+  /* MSG */
+  .msg {
+    padding: 11px 14px; border-radius: 10px;
+    font-size: 13px; font-weight: 600;
+    margin-bottom: 14px; display: none;
+  }
+  .msg.success { background: var(--green-light); color: var(--green-dark); display: block; }
+  .msg.error { background: var(--red-light); color: #8B2020; display: block; }
+
+  /* SCANNER */
+  .scanner-box {
+    border-radius: 14px; overflow: hidden;
+    background: #111;
+    position: relative;
+    margin-bottom: 14px;
+    min-height: 280px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #qr-video { width: 100%; display: block; max-height: 340px; object-fit: cover; }
+  .scan-overlay {
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: none;
+  }
+  .scan-frame { width: 190px; height: 190px; position: relative; }
+  .corner {
+    position: absolute;
+    width: 36px; height: 36px;
+    border-color: #1D9E75;
+    border-style: solid;
+  }
+  .c-tl { top:0; right:0; border-width: 3px 3px 0 0; border-radius: 0 8px 0 0; }
+  .c-tr { top:0; left:0; border-width: 3px 0 0 3px; border-radius: 8px 0 0 0; }
+  .c-br { bottom:0; left:0; border-width: 0 0 3px 3px; border-radius: 0 0 0 8px; }
+  .c-bl { bottom:0; right:0; border-width: 0 3px 3px 0; border-radius: 0 0 8px 0; }
+  .scan-line {
+    position: absolute;
+    width: 160px; height: 2px;
+    background: linear-gradient(90deg, transparent, #1D9E75, transparent);
+    top: 50%; left: 50%;
+    transform: translateX(-50%);
+    animation: scanMove 2s ease-in-out infinite;
+  }
+  @keyframes scanMove {
+    0% { margin-top: -80px; opacity: 0.4; }
+    50% { opacity: 1; }
+    100% { margin-top: 80px; opacity: 0.4; }
+  }
+  .scanner-placeholder-inner {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 12px; padding: 40px 20px;
+    color: #888;
+  }
+  .scanner-placeholder-inner .big-icon { font-size: 52px; opacity: 0.6; }
+  .scanner-placeholder-inner p { font-size: 14px; text-align: center; }
+
+  .scan-status {
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    padding: 6px 0 10px;
+    min-height: 30px;
+  }
+
+  /* RESULT */
+  .result-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 16px;
+    animation: fadeUp 0.3s ease;
+  }
+  .result-card.found { border-color: #5DCAA5; }
+  .result-card.notfound { border-color: #F09595; }
+  .result-title {
+    font-size: 15px; font-weight: 800;
+    margin-bottom: 14px; padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .badge {
+    font-size: 11px; font-weight: 700;
+    padding: 3px 10px; border-radius: 20px;
+  }
+  .badge-found { background: var(--green-light); color: var(--green-dark); }
+  .badge-notfound { background: var(--red-light); color: #8B2020; }
+  .info-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0; font-size: 13px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+  }
+  .info-row:last-child { border-bottom: none; }
+  .info-label { color: var(--text-muted); }
+  .info-val { font-weight: 700; color: var(--text); }
+
+  /* RECORDS */
+  .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .counter { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+  .records-list { display: flex; flex-direction: column; gap: 10px; }
+  .rec-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px;
+    transition: box-shadow 0.15s;
+  }
+  .rec-item:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+  .rec-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .rec-name { font-size: 15px; font-weight: 800; color: var(--text); }
+  .rec-qr {
+    font-size: 11px; font-weight: 600;
+    background: var(--green-light); color: var(--green-dark);
+    padding: 3px 10px; border-radius: 20px;
+  }
+  .rec-details { display: flex; flex-wrap: wrap; gap: 14px; }
+  .rec-detail { font-size: 12px; color: var(--text-muted); }
+  .rec-detail strong { color: var(--text); font-weight: 700; }
+  .rec-date { font-size: 11px; color: var(--text-muted); margin-top: 8px; }
+  .empty {
+    text-align: center; padding: 3rem 1rem;
+    color: var(--text-muted); font-size: 14px;
+  }
+  .empty-icon { font-size: 48px; display: block; margin-bottom: 12px; opacity: 0.4; }
+
+  /* RESET CONFIRM */
+  .overlay {
+    display: none; position: fixed;
+    top:0;left:0;width:100%;height:100%;
+    background: rgba(0,0,0,0.45);
+    z-index: 200;
+    align-items: center; justify-content: center;
+  }
+  .overlay.show { display: flex; }
+  .confirm-box {
+    background: #fff; border-radius: 16px;
+    padding: 28px 24px; width: 300px;
+    text-align: center;
+    animation: fadeUp 0.2s ease;
+  }
+  .confirm-box h3 { font-size: 17px; font-weight: 800; margin-bottom: 8px; }
+  .confirm-box p { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+  .confirm-btns { display: flex; gap: 10px; }
+  .confirm-btns .btn { flex: 1; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <div class="topbar-title">نظام تسجيل QR</div>
+    <div class="topbar-sub">تسجيل وقراءة بيانات الأفراد</div>
+  </div>
+  <div class="topbar-icon">📋</div>
+</div>
+
+<div class="tabs-wrap">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('register')">تسجيل</button>
+    <button class="tab" onclick="switchTab('scan')">قراءة QR</button>
+    <button class="tab" onclick="switchTab('records')">السجلات</button>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- تسجيل -->
+  <div id="tab-register" class="panel active">
+    <div class="card">
+      <div class="card-title"><span>📝</span> بيانات التسجيل</div>
+      <div class="form-group">
+        <label>كود QR</label>
+        <input type="text" id="qr-input" placeholder="أدخل كود الكيو ار..." />
+      </div>
+      <div class="row">
+        <div class="form-group">
+          <label>الاسم الكامل</label>
+          <input type="text" id="name-input" placeholder="الاسم" />
+        </div>
+        <div class="form-group">
+          <label>العمر</label>
+          <input type="number" id="age-input" placeholder="العمر" min="1" max="120" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>العشيرة</label>
+        <input type="text" id="tribe-input" placeholder="اسم العشيرة" />
+      </div>
+      <div id="reg-msg" class="msg"></div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-primary btn-full" onclick="registerEntry()" style="flex:2;">حفظ التسجيل</button>
+        <button class="btn btn-danger" onclick="showReset()">بداية جديدة</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- قراءة QR -->
+  <div id="tab-scan" class="panel">
+    <div class="card">
+      <div class="card-title"><span>📷</span> مسح كود QR</div>
+
+      <div class="scanner-box" id="scanner-box">
+        <div class="scanner-placeholder-inner" id="scanner-ph">
+          <div class="big-icon">📷</div>
+          <p>اضغط الزر أدناه لتشغيل الكاميرا ومسح كود QR</p>
+        </div>
+        <video id="qr-video" autoplay playsinline muted style="display:none;"></video>
+        <div class="scan-overlay" id="scan-overlay" style="display:none;">
+          <div class="scan-frame">
+            <div class="corner c-tl"></div>
+            <div class="corner c-tr"></div>
+            <div class="corner c-br"></div>
+            <div class="corner c-bl"></div>
+            <div class="scan-line"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="scan-status" id="scan-status">في انتظار تشغيل الكاميرا</div>
+
+      <div style="display:flex;gap:10px;margin-bottom:16px;">
+        <button class="btn btn-primary btn-full" id="btn-start" onclick="startCamera()">تشغيل الكاميرا</button>
+        <button class="btn btn-danger" id="btn-stop" onclick="stopCamera()" style="display:none;">إيقاف</button>
+      </div>
+    </div>
+    <div id="scan-result"></div>
+  </div>
+
+  <!-- السجلات -->
+  <div id="tab-records" class="panel">
+    <div class="top-bar">
+      <div class="counter" id="rec-counter">إجمالي السجلات: 0</div>
+      <button class="btn btn-danger" onclick="showReset()">بداية جديدة</button>
+    </div>
+    <div id="records-list" class="records-list">
+      <div class="empty"><span class="empty-icon">📋</span>لا توجد سجلات بعد</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Confirm Dialog -->
+<div class="overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <h3>⚠️ تأكيد المسح</h3>
+    <p>هل أنت متأكد من مسح جميع التسجيلات؟ لا يمكن التراجع عن هذا الإجراء.</p>
+    <div class="confirm-btns">
+      <button class="btn btn-danger" onclick="resetAll()">نعم، امسح</button>
+      <button class="btn" onclick="hideReset()">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<canvas id="qr-canvas" style="display:none;"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script>
+let db = [];
+try { db = JSON.parse(localStorage.getItem('qrsys_db') || '[]'); } catch(e){}
+
+let videoStream = null;
+let scanning = false;
+let animFrame = null;
+let lastCode = '';
+let lastTime = 0;
+
+function saveDB() {
+  try { localStorage.setItem('qrsys_db', JSON.stringify(db)); } catch(e){}
+}
+
+function switchTab(t) {
+  ['register','scan','records'].forEach((name, i) => {
+    document.querySelectorAll('.tab')[i].classList.toggle('active', name === t);
+    document.getElementById('tab-'+name).classList.toggle('active', name === t);
+  });
+  if(t !== 'scan') stopCamera();
+  if(t === 'records') renderRecords();
+}
+
+function showMsg(id, text, type) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = 'msg ' + type;
+  setTimeout(() => { el.className = 'msg'; el.style.display = ''; }, 3500);
+}
+
+function registerEntry() {
+  const qr = document.getElementById('qr-input').value.trim();
+  const name = document.getElementById('name-input').value.trim();
+  const age = document.getElementById('age-input').value.trim();
+  const tribe = document.getElementById('tribe-input').value.trim();
+  if(!qr || !name || !age || !tribe) { showMsg('reg-msg','يرجى ملء جميع الحقول','error'); return; }
+  if(db.find(x => x.qr === qr)) { showMsg('reg-msg','هذا الكود مسجل مسبقاً','error'); return; }
+  db.push({ qr, name, age: parseInt(age), tribe, regDate: new Date().toLocaleString('ar-IQ') });
+  saveDB();
+  showMsg('reg-msg','تم التسجيل بنجاح ✓','success');
+  ['qr-input','name-input','age-input','tribe-input'].forEach(id => document.getElementById(id).value = '');
+}
+
+async function startCamera() {
+  try {
+    document.getElementById('scan-status').textContent = 'جاري تشغيل الكاميرا...';
+    videoStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }
+    });
+    const video = document.getElementById('qr-video');
+    video.srcObject = videoStream;
+    await video.play();
+    document.getElementById('scanner-ph').style.display = 'none';
+    video.style.display = 'block';
+    document.getElementById('scan-overlay').style.display = 'flex';
+    document.getElementById('btn-start').style.display = 'none';
+    document.getElementById('btn-stop').style.display = 'inline-block';
+    document.getElementById('scan-status').textContent = 'وجّه الكاميرا نحو كود QR...';
+    scanning = true;
+    lastCode = '';
+    scanLoop();
+  } catch(err) {
+    document.getElementById('scan-status').textContent = 'تعذر الوصول للكاميرا — تأكد من منح الإذن';
+  }
+}
+
+function stopCamera() {
+  scanning = false;
+  if(animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
+  if(videoStream) { videoStream.getTracks().forEach(t => t.stop()); videoStream = null; }
+  const video = document.getElementById('qr-video');
+  video.srcObject = null;
+  video.style.display = 'none';
+  document.getElementById('scanner-ph').style.display = 'flex';
+  document.getElementById('scan-overlay').style.display = 'none';
+  document.getElementById('btn-start').style.display = 'inline-block';
+  document.getElementById('btn-stop').style.display = 'none';
+  document.getElementById('scan-status').textContent = 'في انتظار تشغيل الكاميرا';
+}
+
+function scanLoop() {
+  if(!scanning) return;
+  const video = document.getElementById('qr-video');
+  const canvas = document.getElementById('qr-canvas');
+  if(video.readyState === video.HAVE_ENOUGH_DATA) {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const code = jsQR(img.data, img.width, img.height, { inversionAttempts: 'dontInvert' });
+    if(code) {
+      const now = Date.now();
+      if(code.data !== lastCode || now - lastTime > 4000) {
+        lastCode = code.data;
+        lastTime = now;
+        lookupQR(code.data);
+      }
+    }
+  }
+  animFrame = requestAnimationFrame(scanLoop);
+}
+
+function lookupQR(code) {
+  const entry = db.find(x => x.qr === code);
+  const now = new Date().toLocaleString('ar-IQ');
+  let html = '';
+  if(entry) {
+    document.getElementById('scan-status').textContent = '✓ تمت القراءة — الشخص مسجل';
+    html = `<div class="result-card found">
+      <div class="result-title">
+        ✅ معلومات الشخص
+        <span class="badge badge-found">مسجل</span>
+      </div>
+      <div class="info-row"><span class="info-label">كود QR</span><span class="info-val">${entry.qr}</span></div>
+      <div class="info-row"><span class="info-label">الاسم</span><span class="info-val">${entry.name}</span></div>
+      <div class="info-row"><span class="info-label">العشيرة</span><span class="info-val">${entry.tribe}</span></div>
+      <div class="info-row"><span class="info-label">العمر</span><span class="info-val">${entry.age} سنة</span></div>
+      <div class="info-row"><span class="info-label">تاريخ التسجيل</span><span class="info-val">${entry.regDate}</span></div>
+      <div class="info-row"><span class="info-label">وقت قراءة QR</span><span class="info-val">${now}</span></div>
+    </div>`;
+  } else {
+    document.getElementById('scan-status').textContent = '⚠ الكود غير مسجل في النظام';
+    html = `<div class="result-card notfound">
+      <div class="result-title">
+        ⚠️ غير مسجل
+        <span class="badge badge-notfound">غير موجود</span>
+      </div>
+      <div class="info-row"><span class="info-label">كود QR</span><span class="info-val">${code}</span></div>
+      <div class="info-row"><span class="info-label">وقت القراءة</span><span class="info-val">${now}</span></div>
+      <p style="font-size:13px;color:var(--text-muted);margin-top:10px;">هذا الكود غير موجود في قاعدة البيانات. يمكنك تسجيله من تبويب التسجيل.</p>
+    </div>`;
+  }
+  document.getElementById('scan-result').innerHTML = html;
+  document.getElementById('scan-result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function renderRecords() {
+  document.getElementById('rec-counter').textContent = 'إجمالي السجلات: ' + db.length;
+  const list = document.getElementById('records-list');
+  if(!db.length) {
+    list.innerHTML = '<div class="empty"><span class="empty-icon">📋</span>لا توجد سجلات بعد</div>';
+    return;
+  }
+  list.innerHTML = db.slice().reverse().map(r => `
+    <div class="rec-item">
+      <div class="rec-header">
+        <span class="rec-name">${r.name}</span>
+        <span class="rec-qr">${r.qr}</span>
+      </div>
+      <div class="rec-details">
+        <div class="rec-detail">العشيرة: <strong>${r.tribe}</strong></div>
+        <div class="rec-detail">العمر: <strong>${r.age} سنة</strong></div>
+      </div>
+      <div class="rec-date">📅 ${r.regDate}</div>
+    </div>
+  `).join('');
+}
+
+function showReset() { document.getElementById('confirm-overlay').classList.add('show'); }
+function hideReset() { document.getElementById('confirm-overlay').classList.remove('show'); }
+
+function resetAll() {
+  db = [];
+  saveDB();
+  hideReset();
+  stopCamera();
+  document.getElementById('scan-result').innerHTML = '';
+  renderRecords();
+  const m = document.getElementById('reg-msg');
+  m.textContent = '✓ تم مسح جميع التسجيلات';
+  m.className = 'msg success';
+  setTimeout(() => { m.className = 'msg'; }, 3000);
+  switchTab('register');
+}
+
+renderRecords();
+</script>
+</body>
+</html>
