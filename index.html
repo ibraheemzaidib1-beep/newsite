@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>غميضة</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f5f6fa;
+  --white:#ffffff;
+  --blue:#3b4fe4;
+  --blue-light:#eef0ff;
+  --blue-mid:#c7ccf5;
+  --red:#e74c3c;
+  --red-light:#fde8e8;
+  --red-mid:#f1948a;
+  --green:#27ae60;
+  --green-light:#f0fdf4;
+  --green-mid:#a9dfbf;
+  --yellow:#f39c12;
+  --yellow-light:#fffbea;
+  --yellow-mid:#f7dc6f;
+  --border:#e8e8f0;
+  --text:#1a1a2e;
+  --text2:#555;
+  --text3:#888;
+}
+html,body{height:100%;background:var(--bg);font-family:'Cairo',sans-serif;color:var(--text);overflow-x:hidden}
+.app{max-width:480px;margin:0 auto;min-height:100vh;position:relative;background:var(--bg)}
+.screen{display:none;flex-direction:column;padding:16px;min-height:100vh;animation:fadeIn 0.3s ease}
+.screen.active{display:flex}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.4}}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cdPop{0%{transform:scale(0.4);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+@keyframes discovered{0%{transform:scale(1)}30%{transform:scale(1.08)}100%{transform:scale(1)}}
+.logo{font-size:30px;font-weight:900;color:var(--blue);text-align:center;margin-bottom:4px}
+.tagline{font-size:13px;color:var(--text3);text-align:center;margin-bottom:24px}
+.card{background:var(--white);border-radius:14px;border:1px solid var(--border);padding:18px;margin-bottom:14px;width:100%}
+.card-title{font-size:15px;font-weight:700;color:var(--blue);margin-bottom:14px}
+input[type=text],input[type=number]{width:100%;padding:11px 14px;background:#f8f9ff;border:1.5px solid #dde0f5;border-radius:10px;color:var(--text);font-family:'Cairo',sans-serif;font-size:15px;outline:none;transition:border 0.2s}
+input:focus{border-color:var(--blue);background:var(--white)}
+label{display:block;color:var(--text3);font-size:13px;margin:10px 0 5px}
+small{color:#aaa;font-size:12px;display:block;margin-top:3px}
+.btn{padding:12px 20px;border:none;border-radius:11px;font-family:'Cairo',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.18s;width:100%;margin-top:8px;display:block}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-blue:hover{background:#2d3fd0}
+.btn-gray{background:#f0f1f8;color:var(--text2);border:1px solid var(--border)}
+.btn-gray:hover{background:#e5e7f5}
+.btn:active{transform:scale(0.97)}
+.room-code-box{background:var(--blue-light);border:2px dashed var(--blue);border-radius:12px;padding:16px;text-align:center;margin-bottom:8px}
+.room-code-val{font-size:42px;font-weight:900;letter-spacing:8px;color:var(--blue);font-family:monospace;animation:pulse 2s infinite}
+.player-row{display:flex;align-items:center;gap:10px;padding:11px 14px;background:#f8f9ff;border:1px solid var(--border);border-radius:10px;margin-bottom:8px;animation:slideUp 0.25s ease}
+.avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0}
+.badge-host{font-size:11px;padding:2px 8px;border-radius:20px;background:var(--blue-light);color:var(--blue);font-weight:700}
+.badge-wait{width:8px;height:8px;border-radius:50%;background:var(--blue);animation:blink 1.2s infinite;flex-shrink:0;margin-right:4px}
+.timer-block{background:var(--white);border-radius:14px;border:1px solid var(--border);padding:18px 16px;text-align:center;margin-bottom:12px}
+.timer-phase{font-size:13px;color:var(--text3);margin-bottom:4px}
+.timer-num{font-size:58px;font-weight:900;color:var(--blue);line-height:1;font-family:monospace;letter-spacing:2px}
+.timer-num.orange{color:#e67e22}
+.timer-num.red{color:var(--red);animation:blink 0.9s infinite}
+.pbar{height:7px;background:#edf0ff;border-radius:4px;overflow:hidden;margin-top:10px}
+.pfill{height:100%;border-radius:4px;transition:width 0.8s linear;background:var(--green)}
+.seeker-box{background:var(--red-light);border:2px solid var(--red);border-radius:12px;padding:13px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px}
+.seeker-icon{width:44px;height:44px;border-radius:50%;background:#fff;border:2px solid var(--red);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#a93226;flex-shrink:0}
+.seeker-lbl{font-size:11px;color:#c0392b;margin-bottom:2px}
+.seeker-name{font-size:16px;font-weight:700;color:#a93226}
+.found-badge{margin-right:auto;background:#fff;border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;color:var(--red);border:1px solid var(--red-mid)}
+.player-card{border-radius:13px;border:2px solid var(--green);background:var(--green-light);padding:14px 16px;margin-bottom:10px;animation:slideUp 0.25s ease;transition:all 0.35s}
+.player-card.found{border-color:var(--yellow);background:var(--yellow-light);animation:discovered 0.4s ease}
+.player-card.is-seeker{border-color:var(--red);background:var(--red-light)}
+.pc-top{display:flex;align-items:center;gap:10px}
+.pc-av{width:42px;height:42px;border-radius:50%;border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;background:#e8faf0;color:#196f3d;flex-shrink:0;transition:all 0.35s}
+.player-card.found .pc-av{border-color:var(--yellow);background:#fef9e7;color:#9a7d0a}
+.player-card.is-seeker .pc-av{border-color:var(--red);background:#fff;color:#a93226}
+.pc-name{font-size:15px;font-weight:700;color:#196f3d;flex:1}
+.player-card.found .pc-name{color:#9a7d0a}
+.player-card.is-seeker .pc-name{color:#a93226}
+.pc-status{font-size:12px;color:#196f3d;margin-top:1px}
+.player-card.found .pc-status{color:#9a7d0a}
+.player-card.is-seeker .pc-status{color:#a93226}
+.pc-hint{background:#fffbea;border:1px solid var(--yellow-mid);border-radius:8px;padding:8px 10px;margin-top:10px;font-size:13px;color:#7d6608}
+.pc-hint-lbl{font-size:11px;color:#a38800;font-weight:700;margin-bottom:3px}
+.disc-btn{margin-top:10px;width:100%;padding:10px;border:none;border-radius:9px;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s}
+.disc-btn.undiscovered{background:#e8faf0;color:#196f3d;border:1.5px solid var(--green)}
+.disc-btn.undiscovered:hover{background:var(--green);color:#fff}
+.disc-btn.discovered{background:#fef9e7;color:#9a7d0a;border:1.5px solid var(--yellow)}
+.disc-btn.discovered:hover{background:var(--yellow);color:#fff}
+.disc-btn:active{transform:scale(0.97)}
+.hint-card{background:var(--yellow-light);border:2px solid var(--yellow-mid);border-radius:12px;padding:14px;margin-bottom:10px}
+.hint-anim{animation:blink 1.5s infinite}
+.hint-lbl{font-size:13px;color:#8a7000;margin-bottom:8px;font-weight:700}
+.phase-banner{width:100%;padding:10px 14px;border-radius:10px;text-align:center;font-weight:700;font-size:14px;margin-bottom:12px}
+.phase-hide{background:var(--green-light);color:#196f3d;border:1px solid var(--green-mid)}
+.phase-seek{background:var(--red-light);color:#a93226;border:1px solid var(--red-mid)}
+.phase-hint{background:var(--yellow-light);color:#9a7d0a;border:1px solid var(--yellow-mid);animation:blink 1.5s infinite}
+.chat-fab{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;background:var(--blue);color:#fff;border:none;border-radius:12px;font-family:'Cairo',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-top:12px;transition:all 0.2s;position:relative}
+.chat-fab:hover{background:#2d3fd0}
+.chat-fab:active{transform:scale(0.97)}
+.notif-dot{position:absolute;top:10px;left:14px;width:9px;height:9px;border-radius:50%;background:var(--red);display:none}
+.chat-overlay{display:none;position:fixed;inset:0;background:var(--bg);z-index:200;flex-direction:column;max-width:480px;margin:0 auto;padding:16px}
+.chat-overlay.open{display:flex}
+.chat-hdr{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.chat-back{padding:8px 14px;background:var(--blue-light);border:none;border-radius:9px;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;cursor:pointer;color:var(--blue)}
+.chat-title-txt{font-size:17px;font-weight:700;flex:1}
+.chat-msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-bottom:8px;padding-top:4px}
+.chat-msg{padding:9px 12px;border-radius:10px;font-size:13px;background:var(--white);border:1px solid var(--border);animation:slideUp 0.2s ease;line-height:1.5}
+.chat-msg.mine{background:var(--blue-light);border-color:var(--blue-mid)}
+.chat-msg.system-msg{background:#f0f2ff;border-color:#d5d9f5;text-align:center;color:var(--text3);font-size:12px}
+.chat-msg.hint-msg{background:var(--yellow-light);border-color:var(--yellow-mid)}
+.msg-author{font-size:11px;font-weight:700;margin-bottom:3px}
+.chat-inp-row{display:flex;gap:8px;margin-top:10px}
+.chat-inp-row input{flex:1;padding:10px 13px;font-size:14px}
+.chat-send-btn{padding:10px 18px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-family:'Cairo',sans-serif;font-weight:700;font-size:14px;cursor:pointer;flex-shrink:0}
+.chat-send-btn:active{transform:scale(0.97)}
+.cd-overlay{display:none;position:fixed;inset:0;background:rgba(245,246,250,0.96);z-index:300;flex-direction:column;align-items:center;justify-content:center;max-width:480px;margin:0 auto}
+.cd-overlay.show{display:flex}
+.cd-num{font-size:120px;font-weight:900;color:var(--blue);animation:cdPop 0.85s ease;line-height:1}
+.cd-top-lbl{font-size:16px;color:var(--text3);margin-bottom:12px}
+.cd-seeker-box{background:var(--red-light);border:2px solid var(--red);border-radius:13px;padding:14px 22px;text-align:center;margin-top:18px}
+.cd-seeker-lbl{font-size:13px;color:#c0392b;margin-bottom:4px}
+.cd-seeker-name{font-size:22px;font-weight:700;color:#a93226}
+.result-wrap{text-align:center;padding:30px 0}
+.result-icon{font-size:70px;margin-bottom:12px}
+.result-title{font-size:26px;font-weight:900;margin-bottom:6px}
+.result-sub{font-size:14px;color:var(--text3);margin-bottom:22px}
+.section-lbl{font-size:14px;font-weight:700;color:var(--text2);margin-bottom:10px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div id="s-home" class="screen active">
+  <div style="padding-top:40px">
+    <div class="logo">🙈 غميضة</div>
+    <div class="tagline">لعبة الغميضة في الحياة الواقعية</div>
+    <div class="card">
+      <div class="card-title">اسمك</div>
+      <input type="text" id="playerName" placeholder="أدخل اسمك..." maxlength="20">
+      <button class="btn btn-blue" onclick="setName()" style="margin-top:14px">التالي</button>
+    </div>
+  </div>
+</div>
+
+<div id="s-menu" class="screen">
+  <div style="padding-top:40px">
+    <div class="logo">🙈 غميضة</div>
+    <div class="tagline" id="menuGreet">مرحباً!</div>
+    <div class="card">
+      <button class="btn btn-blue" style="margin-top:0" onclick="go('s-create')">إنشاء غرفة جديدة</button>
+      <button class="btn btn-gray" onclick="go('s-join')" style="margin-top:10px">الانضمام لغرفة</button>
+    </div>
+  </div>
+</div>
+
+<div id="s-create" class="screen">
+  <div style="padding-top:20px">
+    <div class="logo" style="font-size:24px">إعداد الغرفة</div>
+    <div class="tagline">حدد إعدادات اللعبة</div>
+    <div class="card">
+      <div class="card-title">إعدادات اللعبة</div>
+      <label>عدد اللاعبين</label>
+      <input type="number" id="maxPlayers" value="4" min="2" max="10">
+      <label>وقت الاختباء (بالدقائق)</label>
+      <input type="number" id="hideMin" value="5" min="1" max="15">
+      <small>بين 1 و 15 دقيقة</small>
+      <label>وقت البحث (بالدقائق)</label>
+      <input type="number" id="seekMin" value="10" min="5" max="30">
+      <small>لا يقل عن 5 دقائق</small>
+      <button class="btn btn-blue" onclick="createRoom()" style="margin-top:16px">إنشاء الغرفة</button>
+      <button class="btn btn-gray" onclick="go('s-menu')">رجوع</button>
+    </div>
+  </div>
+</div>
+
+<div id="s-join" class="screen">
+  <div style="padding-top:40px">
+    <div class="logo" style="font-size:24px">انضم لغرفة</div>
+    <div class="tagline">أدخل كود الغرفة</div>
+    <div class="card">
+      <div class="card-title">كود الغرفة</div>
+      <input type="text" id="joinCode" placeholder="000000" maxlength="6" style="text-align:center;letter-spacing:8px;font-size:26px;font-weight:700">
+      <button class="btn btn-blue" onclick="joinRoom()" style="margin-top:16px">انضمام</button>
+      <button class="btn btn-gray" onclick="go('s-menu')">رجوع</button>
+    </div>
+  </div>
+</div>
+
+<div id="s-lobby" class="screen">
+  <div style="padding-top:16px">
+    <div class="logo" style="font-size:22px">انتظار اللاعبين</div>
+    <div class="tagline">شارك الكود مع أصدقائك</div>
+    <div class="card">
+      <div class="card-title">كود الغرفة</div>
+      <div class="room-code-box">
+        <div class="room-code-val" id="lobbyCode">------</div>
+      </div>
+    </div>
+    <div class="section-lbl">اللاعبون <span id="playerCount">0</span>/<span id="maxCount">4</span></div>
+    <div id="lobbyPlayers"></div>
+    <div style="display:flex;align-items:center;gap:8px;color:var(--text3);font-size:13px;margin-top:4px">
+      <div class="badge-wait"></div>في انتظار باقي اللاعبين...
+    </div>
+    <button class="btn btn-blue" id="startBtn" onclick="doStartCountdown()" style="margin-top:18px;display:none">بدء اللعبة</button>
+  </div>
+</div>
+
+<div id="s-game" class="screen">
+  <div id="phaseBanner" class="phase-banner phase-hide">مرحلة الاختباء</div>
+  <div class="timer-block">
+    <div class="timer-phase" id="timerPhase">وقت الاختباء</div>
+    <div class="timer-num" id="timerVal">00:00</div>
+    <div class="pbar"><div class="pfill" id="pfill"></div></div>
+  </div>
+  <div id="seekerBox" class="seeker-box" style="display:none">
+    <div class="seeker-icon" id="seekerAv">؟</div>
+    <div>
+      <div class="seeker-lbl">الباحث</div>
+      <div class="seeker-name" id="seekerNameEl">—</div>
+    </div>
+    <div class="found-badge" id="foundBadge">0 مكتشف</div>
+  </div>
+  <div id="hintCard" class="hint-card" style="display:none">
+    <div class="hint-lbl hint-anim">آخر 3 دقائق! أرسل تلميحاً للجميع</div>
+    <input type="text" id="hintInput" placeholder="أين أنت تقريباً؟" maxlength="80">
+    <button class="btn btn-blue" onclick="sendHint()" style="margin-top:8px;padding:10px">إرسال التلميح</button>
+  </div>
+  <div class="section-lbl">اللاعبون</div>
+  <div id="gamePlayers"></div>
+  <button class="chat-fab" onclick="openChat()">
+    <div class="notif-dot" id="chatDot"></div>
+    الدردشة
+  </button>
+</div>
+
+<div id="s-result" class="screen">
+  <div class="result-wrap">
+    <div class="result-icon" id="resultIcon">🏆</div>
+    <div class="result-title" id="resultTitle">انتهت اللعبة!</div>
+    <div class="result-sub" id="resultSub"></div>
+    <div id="resultPlayers"></div>
+    <button class="btn btn-blue" onclick="resetGame()" style="margin-top:20px">العب مرة أخرى</button>
+  </div>
+</div>
+
+<div id="cdOverlay" class="cd-overlay">
+  <div class="cd-top-lbl">اللعبة تبدأ بعد...</div>
+  <div id="cdNum" class="cd-num">3</div>
+  <div id="cdSeekerBox" class="cd-seeker-box" style="display:none">
+    <div class="cd-seeker-lbl">الباحث هو</div>
+    <div class="cd-seeker-name" id="cdSeekerName"></div>
+  </div>
+</div>
+
+<div id="chatOverlay" class="chat-overlay">
+  <div class="chat-hdr">
+    <button class="chat-back" onclick="closeChat()">رجوع</button>
+    <div class="chat-title-txt">الدردشة</div>
+  </div>
+  <div class="chat-msgs" id="chatMsgs"></div>
+  <div class="chat-inp-row">
+    <input type="text" id="chatInp" placeholder="اكتب رسالة..." maxlength="120">
+    <button class="chat-send-btn" onclick="sendChat()">إرسال</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+// ============================================================
+//  ضع هنا بيانات Supabase الخاصة بك
+// ============================================================
+const SUPABASE_URL = 'https://lhgdkxjufnjvsvyfcicw.supabase.co'; // ← غيّر هذا
+const SUPABASE_KEY = 'sb_publishable_473Pp12Cmuz36CDA-MpOqg_2QNCoXCi'; // ← مفتاحك
+// ============================================================
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const AVC=['#3b4fe4','#e74c3c','#27ae60','#e67e22','#9b59b6','#16a085','#d35400','#2980b9','#8e44ad','#c0392b'];
+let G={
+  myName:'',myId:'',isHost:false,
+  room:null,players:{},
+  phase:'lobby',seeker:'',
+  hideMin:5,seekMin:10,
+  timer:null,timeLeft:0,totalTime:0,
+  foundSet:new Set(),
+  chatOpen:false,newMsgs:0,
+  hintSent:false,hintActive:false,
+  channel:null,
+};
+function uid(){return Math.random().toString(36).substr(2,9)}
+function genCode(){return (Math.floor(Math.random()*900000)+100000).toString()}
+function go(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+function av(name){return name?name[0]:'؟'}
+
+function setName(){
+  const n=document.getElementById('playerName').value.trim();
+  if(!n){alert('أدخل اسمك');return}
+  G.myName=n;G.myId=uid();
+  document.getElementById('menuGreet').textContent='مرحباً '+n+' 👋';
+  go('s-menu');
+}
+
+function addPlayer(id,name,idx,host){
+  G.players[id]={id,name,idx:idx||0,isHost:!!host,found:false,hint:''};
+}
+
+function createRoom(){
+  const max=parseInt(document.getElementById('maxPlayers').value)||4;
+  const hide=parseInt(document.getElementById('hideMin').value)||5;
+  const seek=parseInt(document.getElementById('seekMin').value)||10;
+  if(seek<5){alert('وقت البحث لا يقل عن 5 دقائق');return}
+  const code=genCode();
+  G.room={code,max};G.hideMin=hide;G.seekMin=seek;
+  G.isHost=true;G.players={};G.foundSet=new Set();
+  addPlayer(G.myId,G.myName,0,true);
+  document.getElementById('lobbyCode').textContent=code;
+  document.getElementById('maxCount').textContent=max;
+  renderLobby();
+  go('s-lobby');
+  document.getElementById('startBtn').style.display='block';
+  subscribeRoom(code);
+  broadcastState();
+}
+
+function joinRoom(){
+  const code=document.getElementById('joinCode').value.trim();
+  if(code.length!==6||isNaN(code)){alert('أدخل كوداً صحيحاً من 6 أرقام');return}
+  G.room={code,max:4};G.hideMin=5;G.seekMin=10;
+  G.isHost=false;G.players={};G.foundSet=new Set();
+  const idx=Object.keys(G.players).length;
+  addPlayer(G.myId,G.myName,idx,false);
+  document.getElementById('lobbyCode').textContent=code;
+  document.getElementById('maxCount').textContent='—';
+  renderLobby();
+  go('s-lobby');
+  subscribeRoom(code);
+  broadcastJoin();
+}
+
+function subscribeRoom(code){
+  if(G.channel)G.channel.unsubscribe();
+  G.channel=sb.channel('room:'+code,{config:{broadcast:{self:false}}});
+  G.channel
+    .on('broadcast',{event:'state'},({payload})=>applyState(payload))
+    .on('broadcast',{event:'join'},({payload})=>onPlayerJoin(payload))
+    .on('broadcast',{event:'chat'},({payload})=>onChatMsg(payload))
+    .subscribe();
+}
+
+function broadcastState(){
+  if(!G.channel)return;
+  G.channel.send({type:'broadcast',event:'state',payload:{
+    players:G.players,
+    phase:G.phase,
+    seeker:G.seeker,
+    hideMin:G.hideMin,
+    seekMin:G.seekMin,
+    foundSet:[...G.foundSet],
+    timeLeft:G.timeLeft,
+    hintActive:G.hintActive,
+    maxPlayers:G.room?.max||4,
+  }});
+}
+
+function broadcastJoin(){
+  if(!G.channel)return;
+  G.channel.send({type:'broadcast',event:'join',payload:{
+    id:G.myId,name:G.myName,idx:Object.keys(G.players).length-1
+  }});
+}
+
+function applyState(payload){
+  const wasLobby=G.phase==='lobby';
+  G.players=payload.players||{};
+  G.phase=payload.phase||'lobby';
+  G.seeker=payload.seeker||'';
+  G.hideMin=payload.hideMin||5;
+  G.seekMin=payload.seekMin||10;
+  G.foundSet=new Set(payload.foundSet||[]);
+  G.hintActive=payload.hintActive||false;
+  if(payload.maxPlayers)G.room={...G.room,max:payload.maxPlayers};
+  document.getElementById('maxCount').textContent=G.room?.max||'—';
+  if(G.phase==='lobby'){renderLobby();}
+  else{
+    if(wasLobby){go('s-game');updatePhaseUI();renderGamePlayers();if(!G.timer)runTimerFrom(payload.timeLeft||G.hideMin*60);}
+    else{updatePhaseUI();renderGamePlayers();}
+  }
+}
+
+function onPlayerJoin(payload){
+  if(G.players[payload.id])return;
+  const idx=Object.keys(G.players).length%AVC.length;
+  addPlayer(payload.id,payload.name,idx,false);
+  renderLobby();
+  if(G.isHost)broadcastState();
+}
+
+function onChatMsg(payload){
+  addMsg(payload);
+}
+
+function renderLobby(){
+  const c=document.getElementById('lobbyPlayers');
+  const list=Object.values(G.players);
+  document.getElementById('playerCount').textContent=list.length;
+  c.innerHTML='';
+  list.forEach(p=>{
+    const d=document.createElement('div');d.className='player-row';
+    const col=AVC[p.idx%AVC.length];
+    d.innerHTML=`<div class="avatar" style="background:${col}20;border:2px solid ${col};color:${col}">${av(p.name)}</div><span style="flex:1;font-size:15px">${p.name}${p.id===G.myId?' <span style="color:#aaa;font-size:12px">(أنا)</span>':''}</span>${p.isHost?'<span class="badge-host">منظم</span>':''}<div class="badge-wait"></div>`;
+    c.appendChild(d);
+  });
+}
+
+function doStartCountdown(){
+  const ids=Object.keys(G.players);
+  if(ids.length<2){alert('يحتاج على الأقل لاعبان');return}
+  G.seeker=ids[Math.floor(Math.random()*ids.length)];
+  broadcastState();
+  showCountdown();
+}
+
+function showCountdown(){
+  const ov=document.getElementById('cdOverlay');
+  ov.classList.add('show');
+  document.getElementById('cdSeekerBox').style.display='none';
+  let n=3;
+  const ne=document.getElementById('cdNum');
+  ne.style.display='block';ne.textContent=n;
+  const tick=setInterval(()=>{
+    n--;
+    if(n>0){
+      ne.style.animation='none';void ne.offsetWidth;ne.style.animation='cdPop 0.85s ease';
+      ne.textContent=n;
+    }else{
+      clearInterval(tick);
+      ne.style.display='none';
+      document.getElementById('cdSeekerName').textContent=G.players[G.seeker]?.name||'';
+      document.getElementById('cdSeekerBox').style.display='block';
+      setTimeout(()=>{ov.classList.remove('show');ne.style.display='block';startGame();},2200);
+    }
+  },1000);
+}
+
+function startGame(){
+  go('s-game');
+  G.phase='hide';G.foundSet=new Set();
+  G.timeLeft=G.hideMin*60;G.totalTime=G.hideMin*60;
+  G.hintActive=false;G.hintSent=false;
+  G.chatOpen=false;G.newMsgs=0;
+  document.getElementById('hintCard').style.display='none';
+  document.getElementById('chatDot').style.display='none';
+  document.getElementById('chatMsgs').innerHTML='';
+  updatePhaseUI();renderGamePlayers();
+  sysMsg('مرحلة الاختباء بدأت! اختبئ الآن!');
+  runTimerFrom(G.hideMin*60);
+  if(G.isHost)broadcastState();
+}
+
+function updatePhaseUI(){
+  const bn=document.getElementById('phaseBanner');
+  const ph=document.getElementById('timerPhase');
+  const fill=document.getElementById('pfill');
+  const sb2=document.getElementById('seekerBox');
+  if(G.phase==='hide'){
+    bn.className='phase-banner phase-hide';bn.textContent='مرحلة الاختباء';
+    ph.textContent='وقت الاختباء';fill.style.background='#27ae60';
+    sb2.style.display='none';
+  }else{
+    bn.className='phase-banner phase-seek';bn.textContent='مرحلة البحث';
+    ph.textContent='وقت البحث';fill.style.background='#e74c3c';
+    sb2.style.display='flex';
+    const sp=G.players[G.seeker];
+    if(sp){
+      document.getElementById('seekerAv').textContent=av(sp.name);
+      document.getElementById('seekerNameEl').textContent=sp.name+(G.seeker===G.myId?' (أنا)':'');
+    }
+    document.getElementById('foundBadge').textContent=G.foundSet.size+' مكتشف';
+  }
+}
+
+function runTimerFrom(seconds){
+  clearInterval(G.timer);
+  G.timeLeft=seconds;
+  G.totalTime=G.phase==='hide'?G.hideMin*60:G.seekMin*60;
+  G.timer=setInterval(()=>{
+    G.timeLeft--;
+    const m=Math.floor(G.timeLeft/60).toString().padStart(2,'0');
+    const s=(G.timeLeft%60).toString().padStart(2,'0');
+    const tv=document.getElementById('timerVal');
+    tv.textContent=m+':'+s;
+    const pct=(G.timeLeft/G.totalTime)*100;
+    document.getElementById('pfill').style.width=pct+'%';
+    if(G.timeLeft<=60)tv.className='timer-num red';
+    else if(G.timeLeft<=180)tv.className='timer-num orange';
+    else tv.className='timer-num';
+    if(G.phase==='seek'&&G.timeLeft<=180&&!G.hintActive){
+      G.hintActive=true;
+      document.getElementById('phaseBanner').className='phase-banner phase-hint';
+      document.getElementById('phaseBanner').textContent='آخر 3 دقائق! أرسلوا تلميحاتكم!';
+      if(G.seeker!==G.myId&&!G.hintSent)document.getElementById('hintCard').style.display='block';
+      sysMsg('تبقى 3 دقائق! على المختبئين إرسال تلميح الآن');
+    }
+    if(G.timeLeft<=0){
+      clearInterval(G.timer);
+      if(G.phase==='hide'){
+        G.phase='seek';G.totalTime=G.seekMin*60;
+        updatePhaseUI();
+        sysMsg('مرحلة البحث بدأت! '+G.players[G.seeker]?.name+' ابحث عنهم!');
+        runTimerFrom(G.seekMin*60);
+        if(G.isHost)broadcastState();
+      }else endGame('hiders');
+    }
+  },1000);
+}
+
+function renderGamePlayers(){
+  const c=document.getElementById('gamePlayers');c.innerHTML='';
+  const amSeeker=G.seeker===G.myId;
+  Object.values(G.players).forEach(p=>{
+    const found=G.foundSet.has(p.id);
+    const isSk=p.id===G.seeker;
+    const d=document.createElement('div');
+    d.className='player-card'+(isSk?' is-seeker':found?' found':'');
+    const col=AVC[p.idx%AVC.length];
+    const avStyle=isSk?`border-color:#e74c3c;background:#fff;color:#a93226`:found?`border-color:#f39c12;background:#fef9e7;color:#9a7d0a`:`border-color:${col};background:${col}18;color:${col}`;
+    const status=isSk?'الباحث':found?'تم اكتشافه':'مختبئ';
+    const hintHTML=p.hint?`<div class="pc-hint"><div class="pc-hint-lbl">تلميح</div>${p.hint}</div>`:'';
+    let discBtn='';
+    if(!isSk&&amSeeker&&G.phase==='seek'){
+      const cls=found?'discovered':'undiscovered';
+      const lbl=found?'مكتشف — اضغط للإلغاء':'اكتشاف';
+      discBtn=`<button class="disc-btn ${cls}" onclick="toggleFound('${p.id}')">${lbl}</button>`;
+    }
+    d.innerHTML=`<div class="pc-top"><div class="pc-av" style="${avStyle}">${av(p.name)}</div><div style="flex:1"><div class="pc-name">${p.name}${p.id===G.myId?' <span style="color:#aaa;font-size:12px">(أنا)</span>':''}</div><div class="pc-status">${status}</div></div></div>${hintHTML}${discBtn}`;
+    c.appendChild(d);
+  });
+  if(G.phase==='seek')document.getElementById('foundBadge').textContent=G.foundSet.size+' مكتشف';
+}
+
+function toggleFound(pid){
+  if(G.phase!=='seek')return;
+  if(G.foundSet.has(pid)){G.foundSet.delete(pid);sysMsg('تم إلغاء اكتشاف '+G.players[pid].name);}
+  else{G.foundSet.add(pid);sysMsg(G.players[pid].name+' تم اكتشافه!');}
+  renderGamePlayers();
+  broadcastState();
+  const hiders=Object.values(G.players).filter(p=>p.id!==G.seeker);
+  if(hiders.length>0&&G.foundSet.size>=hiders.length){clearInterval(G.timer);endGame('seeker');}
+}
+
+function sendHint(){
+  const h=document.getElementById('hintInput').value.trim();if(!h)return;
+  G.players[G.myId].hint=h;G.hintSent=true;
+  document.getElementById('hintCard').style.display='none';
+  const msg={type:'hint',author:G.myName,text:h};
+  addMsg(msg);
+  G.channel&&G.channel.send({type:'broadcast',event:'chat',payload:msg});
+  renderGamePlayers();
+  broadcastState();
+}
+
+function openChat(){G.chatOpen=true;G.newMsgs=0;document.getElementById('chatDot').style.display='none';document.getElementById('chatOverlay').classList.add('open');}
+function closeChat(){G.chatOpen=false;document.getElementById('chatOverlay').classList.remove('open');}
+
+function sysMsg(txt){addMsg({type:'system',text:txt});}
+
+function addMsg(msg){
+  const area=document.getElementById('chatMsgs');
+  const d=document.createElement('div');
+  const mine=msg.author===G.myName;
+  if(msg.type==='system'){d.className='chat-msg system-msg';d.textContent=msg.text;}
+  else if(msg.type==='hint'){d.className='chat-msg hint-msg';d.innerHTML=`<div class="msg-author" style="color:#8a7000">تلميح — ${msg.author}</div>${msg.text}`;}
+  else{d.className='chat-msg'+(mine?' mine':'');d.innerHTML=`<div class="msg-author" style="color:${mine?'#3b4fe4':'#555'}">${msg.author}</div>${msg.text}`;}
+  area.appendChild(d);area.scrollTop=area.scrollHeight;
+  if(!G.chatOpen){G.newMsgs++;document.getElementById('chatDot').style.display='block';}
+}
+
+function sendChat(){
+  const inp=document.getElementById('chatInp');
+  const txt=inp.value.trim();if(!txt)return;
+  const msg={type:'msg',author:G.myName,text:txt};
+  addMsg(msg);
+  G.channel&&G.channel.send({type:'broadcast',event:'chat',payload:msg});
+  inp.value='';
+}
+
+function endGame(winner){
+  clearInterval(G.timer);go('s-result');
+  const hiders=Object.values(G.players).filter(p=>p.id!==G.seeker);
+  const safe=hiders.filter(p=>!G.foundSet.has(p.id));
+  document.getElementById('resultIcon').textContent=winner==='seeker'?'🔍':'🙈';
+  document.getElementById('resultTitle').textContent=winner==='seeker'?'الباحث انتصر!':'المختبئون انتصروا!';
+  document.getElementById('resultSub').textContent=winner==='seeker'?G.players[G.seeker].name+' اكتشف الجميع!':safe.length+' لاعبين نجوا من الاكتشاف!';
+  const rp=document.getElementById('resultPlayers');rp.innerHTML='';
+  Object.values(G.players).forEach(p=>{
+    const found=G.foundSet.has(p.id);const isSk=p.id===G.seeker;
+    const d=document.createElement('div');d.className='player-row';d.style.marginBottom='8px';
+    const col=isSk?'#e74c3c':found?'#f39c12':'#27ae60';
+    const lbl=isSk?'باحث':found?'مكتشف':'نجا';
+    d.innerHTML=`<div class="avatar" style="background:${col}20;border:2px solid ${col};color:${col}">${av(p.name)}</div><span style="flex:1;font-size:14px">${p.name}</span><span style="font-size:12px;padding:3px 10px;border-radius:20px;background:${col}20;color:${col};font-weight:700">${lbl}</span>`;
+    rp.appendChild(d);
+  });
+}
+
+function resetGame(){
+  clearInterval(G.timer);
+  if(G.channel)G.channel.unsubscribe();
+  G.players={};G.foundSet=new Set();G.phase='lobby';G.channel=null;
+  go('s-menu');
+}
+
+document.getElementById('chatInp').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat()});
+document.getElementById('joinCode').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'').substr(0,6)});
+</script>
+</body>
+</html>
