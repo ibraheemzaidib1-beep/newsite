@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>🙈 غميضة</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --blue:#7c6fff;--blue2:#a78bfa;--blue3:#60a5fa;
+  --red:#f43f5e;--green:#10b981;--yellow:#f59e0b;
+  --card:rgba(255,255,255,0.08);
+  --card-s:rgba(255,255,255,0.14);
+  --border:rgba(255,255,255,0.12);
+  --border2:rgba(124,111,255,0.4);
+  --text:#f0f0ff;--text2:#c4c4e0;--text3:#8888aa;
+  --shadow:0 8px 32px rgba(0,0,0,0.4);
+  --glow:0 0 24px rgba(124,111,255,0.5);
+}
+html,body{height:100%;font-family:'Cairo',sans-serif;color:var(--text);overflow-x:hidden;background:#0a0a1a}
+
+/* ═══ ANIMATED BG ═══ */
+.bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.orb{position:absolute;border-radius:50%;filter:blur(90px);animation:orbf linear infinite}
+.o1{width:500px;height:500px;background:radial-gradient(#6c3fff88,transparent 70%);top:-15%;right:-10%;animation-duration:22s}
+.o2{width:400px;height:400px;background:radial-gradient(#a855f788,transparent 70%);bottom:-10%;left:-10%;animation-duration:28s;animation-delay:-10s}
+.o3{width:300px;height:300px;background:radial-gradient(#0ea5e988,transparent 70%);top:40%;left:45%;animation-duration:18s;animation-delay:-5s}
+.o4{width:350px;height:350px;background:radial-gradient(#10b98166,transparent 70%);top:60%;right:5%;animation-duration:24s;animation-delay:-15s}
+@keyframes orbf{
+  0%{transform:translate(0,0) scale(1)}
+  25%{transform:translate(40px,-60px) scale(1.1)}
+  50%{transform:translate(-30px,40px) scale(0.9)}
+  75%{transform:translate(60px,20px) scale(1.05)}
+  100%{transform:translate(0,0) scale(1)}
+}
+.stars{position:absolute;inset:0}
+.star{position:absolute;border-radius:50%;background:#fff;animation:twinkle ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:0.1;transform:scale(1)}50%{opacity:0.8;transform:scale(1.4)}}
+.grid-lines{position:absolute;inset:0;background-image:linear-gradient(rgba(124,111,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(124,111,255,0.04) 1px,transparent 1px);background-size:40px 40px}
+
+/* ═══ APP ═══ */
+.app{max-width:480px;margin:0 auto;min-height:100vh;position:relative;z-index:1}
+.screen{display:none;flex-direction:column;padding:16px;min-height:100vh;animation:fadeUp 0.4s ease}
+.screen.active{display:flex}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pop{0%{transform:scale(0.8);opacity:0}70%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cdBig{0%{transform:scale(0.3);opacity:0}60%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
+@keyframes winner{0%,100%{transform:scale(1) rotate(0deg)}25%{transform:scale(1.1) rotate(-5deg)}75%{transform:scale(1.1) rotate(5deg)}}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes glow-pulse{0%,100%{box-shadow:0 0 20px rgba(124,111,255,0.3)}50%{box-shadow:0 0 40px rgba(124,111,255,0.7)}}
+
+/* ═══ GLASS CARD ═══ */
+.card{background:var(--card-s);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:20px;border:1px solid var(--border);padding:20px;margin-bottom:14px;width:100%;box-shadow:var(--shadow)}
+.card-title{font-size:15px;font-weight:700;color:var(--blue2);margin-bottom:14px;display:flex;align-items:center;gap:6px}
+
+/* ═══ LOGO ═══ */
+.logo{font-size:36px;font-weight:900;text-align:center;margin-bottom:4px;background:linear-gradient(135deg,#a78bfa,#60a5fa,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:float 3s ease-in-out infinite;letter-spacing:-1px}
+.tagline{font-size:13px;color:var(--text3);text-align:center;margin-bottom:24px}
+
+/* ═══ INPUTS ═══ */
+input[type=text],input[type=number]{width:100%;padding:13px 16px;background:rgba(255,255,255,0.06);border:1.5px solid var(--border);border-radius:13px;color:var(--text);font-family:'Cairo',sans-serif;font-size:15px;outline:none;transition:all 0.25s}
+input:focus{border-color:var(--blue);background:rgba(124,111,255,0.1);box-shadow:0 0 0 3px rgba(124,111,255,0.15)}
+input::placeholder{color:var(--text3)}
+label{display:block;color:var(--text2);font-size:13px;margin:12px 0 5px;font-weight:600}
+small{color:var(--text3);font-size:12px;display:block;margin-top:4px}
+
+/* ═══ BUTTONS ═══ */
+.btn{padding:13px 20px;border:none;border-radius:13px;font-family:'Cairo',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s;width:100%;margin-top:8px;display:block;letter-spacing:0.3px}
+.btn-blue{background:linear-gradient(135deg,#6c3fff,#a855f7);color:#fff;box-shadow:0 4px 20px rgba(108,63,255,0.4)}
+.btn-blue:hover{box-shadow:0 6px 28px rgba(108,63,255,0.6);transform:translateY(-1px)}
+.btn-gray{background:rgba(255,255,255,0.08);color:var(--text2);border:1px solid var(--border)}
+.btn-gray:hover{background:rgba(255,255,255,0.14)}
+.btn:active{transform:scale(0.97)!important}
+.leave-btn{display:flex;align-items:center;justify-content:center;width:100%;padding:12px;background:rgba(244,63,94,0.1);color:#ff6b8a;border:1.5px solid rgba(244,63,94,0.25);border-radius:13px;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;transition:all 0.2s}
+.leave-btn:hover{background:rgba(244,63,94,0.2);border-color:rgba(244,63,94,0.5)}
+.leave-btn:active{transform:scale(0.97)}
+
+/* ═══ ROOM CODE ═══ */
+.room-code-box{background:linear-gradient(135deg,rgba(124,111,255,0.15),rgba(168,139,250,0.15));border:2px solid rgba(124,111,255,0.3);border-radius:16px;padding:20px;text-align:center;margin-bottom:8px;animation:glow-pulse 3s ease-in-out infinite}
+.room-code-val{font-size:46px;font-weight:900;letter-spacing:12px;background:linear-gradient(135deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-family:monospace;animation:pulse 2s infinite}
+
+/* ═══ LOBBY PLAYERS ═══ */
+.player-row{display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:13px;margin-bottom:8px;animation:slideUp 0.3s ease;backdrop-filter:blur(8px)}
+.avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0}
+.badge-host{font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(124,111,255,0.2);color:var(--blue2);font-weight:700;border:1px solid rgba(124,111,255,0.3)}
+.badge-wait{width:8px;height:8px;border-radius:50%;background:var(--blue2);animation:blink 1.2s infinite;flex-shrink:0}
+
+/* ═══ TIMER ═══ */
+.timer-block{background:linear-gradient(135deg,rgba(108,63,255,0.15),rgba(59,130,246,0.15));backdrop-filter:blur(20px);border-radius:20px;border:1px solid rgba(124,111,255,0.25);padding:22px 16px;text-align:center;margin-bottom:12px;box-shadow:var(--shadow),var(--glow)}
+.timer-phase{font-size:12px;color:var(--text3);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:2px}
+.timer-num{font-size:68px;font-weight:900;line-height:1;font-family:monospace;letter-spacing:4px;background:linear-gradient(135deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.timer-num.orange{background:linear-gradient(135deg,#f59e0b,#fb923c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.timer-num.red{background:linear-gradient(135deg,#f43f5e,#fb7185);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:blink 0.9s infinite}
+.pbar{height:8px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden;margin-top:14px}
+.pfill{height:100%;border-radius:4px;transition:width 0.8s linear;background:linear-gradient(90deg,#6c3fff,#a855f7)}
+
+/* ═══ MY NAME PILL ═══ */
+.my-name-pill{display:inline-flex;align-items:center;gap:8px;background:rgba(124,111,255,0.15);border:1.5px solid rgba(124,111,255,0.3);border-radius:30px;padding:8px 20px;font-size:14px;font-weight:700;color:var(--blue2);margin:0 auto 12px;align-self:center;animation:float 4s ease-in-out infinite}
+
+/* ═══ SEEKER BOX ═══ */
+.seeker-box{background:linear-gradient(135deg,rgba(244,63,94,0.15),rgba(251,113,133,0.1));border:2px solid rgba(244,63,94,0.3);border-radius:16px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 20px rgba(244,63,94,0.15)}
+.seeker-icon{width:48px;height:48px;border-radius:50%;background:rgba(244,63,94,0.2);border:2px solid rgba(244,63,94,0.5);display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;color:#fda4af;flex-shrink:0}
+.seeker-lbl{font-size:11px;color:#fda4af;margin-bottom:2px;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.seeker-name-txt{font-size:17px;font-weight:700;color:#fb7185}
+.found-badge{margin-right:auto;background:rgba(244,63,94,0.15);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;color:#fb7185;border:1px solid rgba(244,63,94,0.3)}
+
+/* ═══ PLAYER CARDS — SQUARE ═══ */
+.players-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.player-card{border-radius:18px;border:2px solid rgba(16,185,129,0.3);background:linear-gradient(135deg,rgba(16,185,129,0.1),rgba(52,211,153,0.05));backdrop-filter:blur(12px);padding:14px 10px;animation:pop 0.35s ease;transition:all 0.3s;display:flex;flex-direction:column;align-items:center;text-align:center;aspect-ratio:1/1;justify-content:center;gap:5px;box-shadow:0 4px 16px rgba(0,0,0,0.2)}
+.player-card.found{border-color:rgba(245,158,11,0.5);background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(251,191,36,0.08));box-shadow:0 4px 20px rgba(245,158,11,0.2)}
+.player-card.is-seeker{border-color:rgba(244,63,94,0.5);background:linear-gradient(135deg,rgba(244,63,94,0.15),rgba(251,113,133,0.08));box-shadow:0 4px 20px rgba(244,63,94,0.2)}
+.pc-av{width:48px;height:48px;border-radius:50%;border:2.5px solid rgba(16,185,129,0.5);display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:900;background:rgba(16,185,129,0.15);color:#34d399;transition:all 0.3s;flex-shrink:0}
+.player-card.found .pc-av{border-color:rgba(245,158,11,0.6);background:rgba(245,158,11,0.15);color:#fbbf24}
+.player-card.is-seeker .pc-av{border-color:rgba(244,63,94,0.6);background:rgba(244,63,94,0.15);color:#fb7185}
+.pc-name{font-size:13px;font-weight:700;color:#a7f3d0;word-break:break-word;line-height:1.2}
+.player-card.found .pc-name{color:#fde68a}
+.player-card.is-seeker .pc-name{color:#fda4af}
+.pc-status{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;color:#34d399;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.2)}
+.player-card.found .pc-status{color:#fbbf24;background:rgba(245,158,11,0.15);border-color:rgba(245,158,11,0.2)}
+.player-card.is-seeker .pc-status{color:#fb7185;background:rgba(244,63,94,0.15);border-color:rgba(244,63,94,0.2)}
+.pc-hint{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);border-radius:8px;padding:5px 8px;margin-top:5px;font-size:11px;color:#fde68a;text-align:center;width:100%;line-height:1.4}
+.pc-hint-lbl{font-size:10px;color:#fbbf24;font-weight:700;margin-bottom:2px}
+.disc-btn{margin-top:8px;width:100%;padding:7px 4px;border:none;border-radius:9px;font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s}
+.disc-btn.undiscovered{background:rgba(16,185,129,0.15);color:#34d399;border:1.5px solid rgba(16,185,129,0.3)}
+.disc-btn.undiscovered:hover{background:var(--green);color:#fff}
+.disc-btn.discovered{background:rgba(245,158,11,0.15);color:#fbbf24;border:1.5px solid rgba(245,158,11,0.3)}
+.disc-btn.discovered:hover{background:var(--yellow);color:#000}
+.disc-btn:active{transform:scale(0.96)}
+
+/* ═══ HINT CARD ═══ */
+.hint-card{background:rgba(245,158,11,0.1);border:2px solid rgba(245,158,11,0.3);border-radius:16px;padding:14px;margin-bottom:12px;backdrop-filter:blur(10px)}
+.hint-anim{animation:blink 1.5s infinite}
+.hint-lbl{font-size:13px;color:#fde68a;margin-bottom:8px;font-weight:700}
+
+/* ═══ PHASE BANNER ═══ */
+.phase-banner{width:100%;padding:12px 16px;border-radius:13px;text-align:center;font-weight:700;font-size:14px;margin-bottom:12px;letter-spacing:0.3px;backdrop-filter:blur(10px)}
+.phase-hide{background:rgba(16,185,129,0.12);color:#34d399;border:1.5px solid rgba(16,185,129,0.3)}
+.phase-seek{background:rgba(244,63,94,0.12);color:#fb7185;border:1.5px solid rgba(244,63,94,0.3)}
+.phase-hint{background:rgba(245,158,11,0.12);color:#fbbf24;border:1.5px solid rgba(245,158,11,0.3);animation:blink 1.5s infinite}
+
+/* ═══ ACTION ROW ═══ */
+.action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.action-row .btn,.action-row .chat-fab{margin-top:0}
+
+/* ═══ CHAT FAB ═══ */
+.chat-fab{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;background:linear-gradient(135deg,#6c3fff,#a855f7);color:#fff;border:none;border-radius:13px;font-family:'Cairo',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.2s;position:relative;box-shadow:0 4px 20px rgba(108,63,255,0.4)}
+.chat-fab:hover{box-shadow:0 6px 28px rgba(108,63,255,0.6)}
+.chat-fab:active{transform:scale(0.97)}
+.notif-dot{position:absolute;top:8px;left:10px;width:10px;height:10px;border-radius:50%;background:var(--red);border:2px solid #0a0a1a;display:none}
+
+/* ═══ OVERLAYS ═══ */
+.overlay-screen{display:none;position:fixed;inset:0;background:rgba(10,10,26,0.95);backdrop-filter:blur(20px);z-index:200;flex-direction:column;max-width:480px;margin:0 auto;padding:16px;overflow-y:auto}
+.overlay-screen.open{display:flex;animation:fadeUp 0.3s ease}
+.overlay-hdr{display:flex;align-items:center;gap:10px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.overlay-back{padding:8px 16px;background:rgba(124,111,255,0.15);border:1px solid rgba(124,111,255,0.25);border-radius:10px;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;cursor:pointer;color:var(--blue2)}
+.overlay-title{font-size:18px;font-weight:700;flex:1;background:linear-gradient(135deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* ═══ CHAT ═══ */
+.chat-msgs{flex:1;display:flex;flex-direction:column;gap:8px;padding-bottom:8px;min-height:280px;max-height:420px;overflow-y:auto}
+.chat-msg{padding:10px 14px;border-radius:13px;font-size:13px;background:rgba(255,255,255,0.06);border:1px solid var(--border);animation:slideUp 0.2s ease;line-height:1.5}
+.chat-msg.mine{background:rgba(124,111,255,0.15);border-color:rgba(124,111,255,0.25)}
+.chat-msg.system-msg{background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.08);text-align:center;color:var(--text3);font-size:12px;border-radius:20px;padding:7px 14px}
+.chat-msg.hint-msg{background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.2)}
+.msg-author{font-size:11px;font-weight:700;margin-bottom:3px}
+.chat-inp-row{display:flex;gap:8px;margin-top:12px}
+.chat-inp-row input{flex:1;padding:11px 14px;font-size:14px}
+.chat-send-btn{padding:11px 18px;background:linear-gradient(135deg,#6c3fff,#a855f7);color:#fff;border:none;border-radius:12px;font-family:'Cairo',sans-serif;font-weight:700;font-size:14px;cursor:pointer;flex-shrink:0;box-shadow:0 3px 12px rgba(108,63,255,0.4)}
+
+/* ═══ KICK ═══ */
+.kick-player-row{display:flex;align-items:center;gap:10px;padding:13px 16px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:13px;margin-bottom:8px;cursor:pointer;transition:all 0.2s}
+.kick-player-row:hover{border-color:rgba(244,63,94,0.4);background:rgba(244,63,94,0.08)}
+.kick-tag{font-size:12px;color:#fb7185;font-weight:700;padding:5px 12px;background:rgba(244,63,94,0.12);border-radius:8px;border:1px solid rgba(244,63,94,0.25);flex-shrink:0}
+
+/* ═══ COUNTDOWN ═══ */
+.cd-overlay{display:none;position:fixed;inset:0;z-index:300;flex-direction:column;align-items:center;justify-content:center;max-width:480px;margin:0 auto}
+.cd-overlay.show{display:flex}
+.cd-bg{position:absolute;inset:0;background:rgba(10,10,26,0.92);backdrop-filter:blur(30px)}
+.cd-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center}
+.cd-label{font-size:16px;color:var(--text3);margin-bottom:16px;font-weight:600;letter-spacing:1px}
+.cd-num{font-size:140px;font-weight:900;line-height:1;background:linear-gradient(135deg,#a78bfa,#60a5fa,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:cdBig 0.9s ease;filter:drop-shadow(0 0 30px rgba(124,111,255,0.6))}
+.cd-seeker-reveal{background:rgba(244,63,94,0.12);border:2px solid rgba(244,63,94,0.3);border-radius:18px;padding:20px 32px;text-align:center;margin-top:28px;animation:pop 0.5s ease;backdrop-filter:blur(10px)}
+.cd-seeker-lbl{font-size:13px;color:#fda4af;margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.cd-seeker-nm{font-size:28px;font-weight:900;background:linear-gradient(135deg,#fb7185,#f43f5e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* ═══ WIN OVERLAY ═══ */
+.win-overlay{display:none;position:fixed;inset:0;z-index:250;flex-direction:column;align-items:center;justify-content:center;max-width:480px;margin:0 auto;padding:24px;text-align:center}
+.win-overlay.show{display:flex;animation:fadeUp 0.4s ease}
+.win-bg{position:absolute;inset:0;background:rgba(10,10,26,0.94);backdrop-filter:blur(30px)}
+.win-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center}
+.win-big-icon{font-size:92px;animation:winner 1.2s ease-in-out infinite;filter:drop-shadow(0 0 20px gold)}
+.win-title{font-size:32px;font-weight:900;margin-top:16px;background:linear-gradient(135deg,#a78bfa,#60a5fa,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.win-sub{font-size:16px;color:var(--text3);margin-top:8px}
+.win-card{background:rgba(124,111,255,0.12);border:2px solid rgba(124,111,255,0.3);border-radius:18px;padding:18px 32px;margin-top:22px;backdrop-filter:blur(10px)}
+.win-name{font-size:28px;font-weight:900;background:linear-gradient(135deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.win-footer{color:var(--text3);font-size:13px;margin-top:20px}
+
+/* ═══ RESULT ═══ */
+.result-wrap{text-align:center;padding:20px 0}
+.result-icon{font-size:76px;margin-bottom:16px;display:block;animation:winner 1.5s ease-in-out infinite;filter:drop-shadow(0 0 16px gold)}
+.result-title{font-size:30px;font-weight:900;margin-bottom:6px;background:linear-gradient(135deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.result-sub{font-size:15px;color:var(--text3);margin-bottom:20px}
+.result-table{width:100%;border-collapse:collapse}
+.result-table td{padding:10px 12px;font-size:14px}
+.result-table tr{border-bottom:1px solid var(--border)}
+.result-table tr:last-child{border-bottom:none}
+.result-tag{font-size:12px;padding:3px 10px;border-radius:20px;font-weight:700}
+.result-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px;width:100%}
+.result-actions .btn{margin-top:0}
+
+/* ═══ KICKED ═══ */
+.kicked-notice{background:rgba(244,63,94,0.1);border:2px solid rgba(244,63,94,0.25);border-radius:18px;padding:32px 20px;text-align:center;margin-top:40px;backdrop-filter:blur(10px)}
+.kicked-notice h2{color:#fb7185;font-size:22px;margin-bottom:8px}
+.kicked-notice p{color:#fda4af;font-size:14px;margin-bottom:20px;line-height:1.6}
+
+/* ═══ SECTION LABEL ═══ */
+.section-lbl{font-size:12px;font-weight:700;color:var(--text3);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px}
+
+/* ═══ PARTICLES ═══ */
+.particle{position:absolute;pointer-events:none;border-radius:50%;animation:particleFloat linear infinite}
+@keyframes particleFloat{0%{transform:translateY(100vh) rotate(0deg);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(-20px) rotate(720deg);opacity:0}}
+</style>
+</head>
+<body>
+
+<!-- ANIMATED BACKGROUND -->
+<div class="bg">
+  <div class="grid-lines"></div>
+  <div class="orb o1"></div>
+  <div class="orb o2"></div>
+  <div class="orb o3"></div>
+  <div class="orb o4"></div>
+  <div class="stars" id="starsContainer"></div>
+  <div id="particleContainer"></div>
+</div>
+
+<div class="app">
+
+<!-- HOME -->
+<div id="s-home" class="screen active">
+  <div style="padding-top:60px;display:flex;flex-direction:column;align-items:center">
+    <div class="logo">🙈 غميضة</div>
+    <div class="tagline">لعبة الغميضة في الحياة الواقعية</div>
+    <div class="card" style="max-width:380px;width:100%">
+      <div class="card-title">👤 اسمك في اللعبة</div>
+      <input type="text" id="playerName" placeholder="أدخل اسمك..." maxlength="20">
+      <button class="btn btn-blue" onclick="setName()" style="margin-top:18px">التالي ✨</button>
+    </div>
+  </div>
+</div>
+
+<!-- MENU -->
+<div id="s-menu" class="screen">
+  <div style="padding-top:60px;display:flex;flex-direction:column;align-items:center">
+    <div class="logo">🙈 غميضة</div>
+    <div class="tagline" id="menuGreet">مرحباً!</div>
+    <div class="card" style="max-width:380px;width:100%">
+      <button class="btn btn-blue" style="margin-top:0" onclick="go('s-create')">🏠 إنشاء غرفة جديدة</button>
+      <button class="btn btn-gray" onclick="go('s-join')" style="margin-top:10px">🚪 الانضمام لغرفة</button>
+    </div>
+  </div>
+</div>
+
+<!-- CREATE -->
+<div id="s-create" class="screen">
+  <div style="padding-top:24px">
+    <div class="logo" style="font-size:26px;animation:none">إعداد الغرفة</div>
+    <div class="tagline">حدد إعدادات اللعبة</div>
+    <div class="card">
+      <div class="card-title">⚙️ الإعدادات</div>
+      <label>عدد اللاعبين</label>
+      <input type="number" id="maxPlayers" value="4" min="2" max="10">
+      <label>وقت الاختباء (دقائق)</label>
+      <input type="number" id="hideMin" value="5" min="1" max="15">
+      <small>بين 1 و 15 دقيقة</small>
+      <label>وقت البحث (دقائق)</label>
+      <input type="number" id="seekMin" value="10" min="5" max="30">
+      <small>لا يقل عن 5 دقائق</small>
+      <button class="btn btn-blue" onclick="createRoom()" style="margin-top:18px">إنشاء الغرفة 🚀</button>
+      <button class="btn btn-gray" onclick="go('s-menu')">رجوع</button>
+    </div>
+  </div>
+</div>
+
+<!-- JOIN -->
+<div id="s-join" class="screen">
+  <div style="padding-top:60px">
+    <div class="logo" style="font-size:26px;animation:none">انضم لغرفة</div>
+    <div class="tagline">أدخل كود الغرفة</div>
+    <div class="card">
+      <div class="card-title">🔢 كود الغرفة</div>
+      <input type="text" id="joinCode" placeholder="000000" maxlength="6" style="text-align:center;letter-spacing:12px;font-size:30px;font-weight:900">
+      <div id="joinError" style="font-size:13px;margin-top:10px;text-align:center;display:none;padding:10px;border-radius:12px;border:1px solid"></div>
+      <button class="btn btn-blue" onclick="joinRoom()" style="margin-top:18px">انضمام 🎮</button>
+      <button class="btn btn-gray" onclick="go('s-menu')">رجوع</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOBBY -->
+<div id="s-lobby" class="screen">
+  <div style="padding-top:16px">
+    <div class="logo" style="font-size:22px;animation:none">⏳ انتظار اللاعبين</div>
+    <div class="tagline">شارك الكود مع أصدقائك</div>
+    <div class="card">
+      <div class="card-title">🔑 كود الغرفة</div>
+      <div class="room-code-box"><div class="room-code-val" id="lobbyCode">------</div></div>
+    </div>
+    <div class="section-lbl">اللاعبون <span id="playerCount">0</span>/<span id="maxCount">4</span></div>
+    <div id="lobbyPlayers"></div>
+    <div style="display:flex;align-items:center;gap:8px;color:var(--text3);font-size:13px;margin-top:6px">
+      <div class="badge-wait"></div>في انتظار باقي اللاعبين...
+    </div>
+    <div class="action-row" style="margin-top:18px">
+      <button class="btn btn-blue" id="startBtn" onclick="doStartCountdown()" style="display:none;margin-top:0">▶ بدء اللعبة</button>
+      <button class="btn btn-gray" id="kickBtnLobby" onclick="openKick()" style="display:none;margin-top:0">⛔ طرد لاعب</button>
+    </div>
+    <button class="leave-btn" onclick="leaveRoom()">🚪 الخروج من الغرفة</button>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="s-game" class="screen">
+  <div id="phaseBanner" class="phase-banner phase-hide">🙈 مرحلة الاختباء</div>
+  <div class="timer-block">
+    <div class="timer-phase" id="timerPhase">وقت الاختباء</div>
+    <div class="timer-num" id="timerVal">00:00</div>
+    <div class="pbar"><div class="pfill" id="pfill" style="width:100%"></div></div>
+  </div>
+  <div class="my-name-pill" id="myNamePill">👤 <span id="myNameTxt"></span></div>
+  <div id="seekerBox" class="seeker-box" style="display:none">
+    <div class="seeker-icon" id="seekerAv">؟</div>
+    <div>
+      <div class="seeker-lbl">الباحث</div>
+      <div class="seeker-name-txt" id="seekerNameEl">—</div>
+    </div>
+    <div class="found-badge" id="foundBadge">0 مكتشف</div>
+  </div>
+  <div id="hintCard" class="hint-card" style="display:none">
+    <div class="hint-lbl hint-anim">⚡ آخر 3 دقائق! أرسل تلميحاً للجميع</div>
+    <input type="text" id="hintInput" placeholder="أين أنت تقريباً؟" maxlength="80">
+    <button class="btn btn-blue" onclick="sendHint()" style="margin-top:10px;padding:11px">📢 إرسال التلميح</button>
+  </div>
+  <div class="section-lbl">اللاعبون</div>
+  <div class="players-grid" id="gamePlayers"></div>
+  <div class="action-row">
+    <button class="chat-fab" onclick="openChat()" style="margin-top:0">
+      <div class="notif-dot" id="chatDot"></div>💬 الدردشة
+    </button>
+    <button class="btn btn-gray" id="kickBtnGame" onclick="openKick()" style="display:none;margin-top:0">⛔ طرد لاعب</button>
+  </div>
+  <button class="leave-btn" onclick="leaveRoom()">🚪 الخروج من الغرفة</button>
+</div>
+
+<!-- RESULT -->
+<div id="s-result" class="screen">
+  <div class="result-wrap">
+    <div class="result-icon" id="resultIcon">🏆</div>
+    <div class="result-title" id="resultTitle">انتهت اللعبة!</div>
+    <div class="result-sub" id="resultSub"></div>
+    <div class="card" style="padding:10px;text-align:right">
+      <table class="result-table" id="resultTable"></table>
+    </div>
+    <div class="result-actions">
+      <button class="btn btn-blue" id="continueBtn" onclick="continueGame()" style="display:none">▶ تكملة</button>
+      <button class="btn btn-gray" onclick="resetGame()">🚪 الخروج</button>
+    </div>
+    <div id="waitingContinue" style="color:var(--text3);font-size:13px;margin-top:10px;text-align:center;display:none">⏳ في انتظار صاحب الغرفة...</div>
+  </div>
+</div>
+
+<!-- KICKED -->
+<div id="s-kicked" class="screen">
+  <div class="kicked-notice">
+    <div style="font-size:64px;margin-bottom:14px;animation:winner 1s ease-in-out infinite">🚫</div>
+    <h2>تم طردك من الغرفة</h2>
+    <p>قام صاحب الغرفة بإزالتك من اللعبة</p>
+    <button class="btn btn-blue" onclick="resetGame()">العودة للقائمة</button>
+  </div>
+</div>
+
+<!-- COUNTDOWN -->
+<div id="cdOverlay" class="cd-overlay">
+  <div class="cd-bg"></div>
+  <div class="cd-content">
+    <div class="cd-label">اللعبة تبدأ بعد...</div>
+    <div id="cdNum" class="cd-num">3</div>
+    <div id="cdSeekerBox" class="cd-seeker-reveal" style="display:none">
+      <div class="cd-seeker-lbl">الباحث هو</div>
+      <div class="cd-seeker-nm" id="cdSeekerName"></div>
+    </div>
+  </div>
+</div>
+
+<!-- WIN OVERLAY -->
+<div id="winOverlay" class="win-overlay">
+  <div class="win-bg"></div>
+  <div class="win-content">
+    <div class="win-big-icon" id="winIcon">🏆</div>
+    <div class="win-title" id="winTitle">فائز!</div>
+    <div class="win-sub" id="winSub"></div>
+    <div class="win-card">
+      <div style="font-size:13px;color:var(--text3);margin-bottom:6px">الفائز</div>
+      <div class="win-name" id="winName"></div>
+    </div>
+    <div class="win-footer">جار الانتقال لشاشة النتائج...</div>
+  </div>
+</div>
+
+<!-- CHAT OVERLAY -->
+<div id="chatOverlay" class="overlay-screen">
+  <div class="overlay-hdr">
+    <button class="overlay-back" onclick="closeChat()">رجوع</button>
+    <div class="overlay-title">💬 الدردشة</div>
+  </div>
+  <div class="chat-msgs" id="chatMsgs"></div>
+  <div class="chat-inp-row">
+    <input type="text" id="chatInp" placeholder="اكتب رسالة..." maxlength="120">
+    <button class="chat-send-btn" onclick="sendChat()">إرسال</button>
+  </div>
+</div>
+
+<!-- KICK OVERLAY -->
+<div id="kickOverlay" class="overlay-screen">
+  <div class="overlay-hdr">
+    <button class="overlay-back" onclick="closeKick()">رجوع</button>
+    <div class="overlay-title">⛔ طرد لاعب</div>
+  </div>
+  <div style="color:var(--text3);font-size:13px;margin-bottom:14px">اضغط على لاعب لطرده من الغرفة</div>
+  <div id="kickList"></div>
+</div>
+
+</div><!-- .app -->
+
+<script>
+// ============================================================
+const SUPABASE_URL = 'https://lhgdkxjufnjvsvyfcicw.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_473Pp12Cmuz36CDA-MpOqg_2QNCoXCi';
+// ============================================================
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const AVC=['#7c6fff','#f43f5e','#10b981','#f59e0b','#8b5cf6','#0ea5e9','#ec4899','#14b8a6','#f97316','#6366f1'];
+
+let G={myName:'',myId:'',isHost:false,room:null,players:{},phase:'lobby',seeker:'',hideMin:5,seekMin:10,timer:null,timeLeft:0,totalTime:0,foundSet:new Set(),chatOpen:false,newMsgs:0,hintSent:false,hintActive:false,channel:null,winShown:false};
+
+// ── BG INIT ──
+function initBG(){
+  const sc=document.getElementById('starsContainer');
+  for(let i=0;i<80;i++){
+    const s=document.createElement('div');s.className='star';
+    const sz=Math.random()*2.5+0.5;
+    s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-duration:${2+Math.random()*4}s;animation-delay:${Math.random()*4}s`;
+    sc.appendChild(s);
+  }
+  const pc=document.getElementById('particleContainer');
+  const emojis=['🙈','⭐','✨','🌟','💫','🎯','🏃','👁️'];
+  setInterval(()=>{
+    if(Math.random()>0.4)return;
+    const p=document.createElement('div');p.className='particle';
+    const sz=10+Math.random()*14;
+    const dur=8+Math.random()*12;
+    p.style.cssText=`font-size:${sz}px;left:${Math.random()*100}%;opacity:0.3;animation-duration:${dur}s;animation-delay:0s`;
+    p.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+    pc.appendChild(p);
+    setTimeout(()=>p.remove(),dur*1000);
+  },600);
+}
+initBG();
+
+function uid(){return Math.random().toString(36).substr(2,9)}
+function genCode(){return (Math.floor(Math.random()*900000)+100000).toString()}
+function go(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+function av(name){return name?name[0]:'؟'}
+
+function setName(){
+  const n=document.getElementById('playerName').value.trim();
+  if(!n){alert('أدخل اسمك');return}
+  G.myName=n;G.myId=uid();
+  document.getElementById('menuGreet').textContent='مرحباً '+n+' 👋';
+  go('s-menu');
+}
+function addPlayer(id,name,idx,host){G.players[id]={id,name,idx:idx||0,isHost:!!host,found:false,hint:'',kicked:false};}
+
+function createRoom(){
+  const max=parseInt(document.getElementById('maxPlayers').value)||4;
+  const hide=parseInt(document.getElementById('hideMin').value)||5;
+  const seek=parseInt(document.getElementById('seekMin').value)||10;
+  if(seek<5){alert('وقت البحث لا يقل عن 5 دقائق');return}
+  const code=genCode();
+  G.room={code,max};G.hideMin=hide;G.seekMin=seek;G.isHost=true;G.players={};G.foundSet=new Set();G.winShown=false;
+  addPlayer(G.myId,G.myName,0,true);
+  document.getElementById('lobbyCode').textContent=code;
+  document.getElementById('maxCount').textContent=max;
+  renderLobby();go('s-lobby');
+  document.getElementById('startBtn').style.display='block';
+  document.getElementById('kickBtnLobby').style.display='block';
+  subscribeRoom(code);broadcastState();
+}
+
+async function joinRoom(){
+  const code=document.getElementById('joinCode').value.trim();
+  const errEl=document.getElementById('joinError');
+  errEl.style.display='none';
+  if(code.length!==6||isNaN(code)){
+    showErr(errEl,'أدخل كوداً صحيحاً من 6 أرقام','red');return;
+  }
+  showErr(errEl,'جار التحقق من الغرفة...','blue');
+  const tempCh=sb.channel('room:'+code,{config:{broadcast:{self:true}}});
+  let found=false;
+  tempCh.on('broadcast',{event:'state'},()=>{found=true});
+  await tempCh.subscribe(async(status)=>{
+    if(status==='SUBSCRIBED'){
+      tempCh.send({type:'broadcast',event:'ping',payload:{}});
+      await new Promise(r=>setTimeout(r,1400));
+      await tempCh.unsubscribe();
+      if(!found){showErr(errEl,'الغرفة غير موجودة، تحقق من الكود','red');}
+      else{errEl.style.display='none';doJoin(code);}
+    }
+  });
+}
+function showErr(el,txt,type){
+  el.textContent=txt;
+  if(type==='red'){el.style.color='#fb7185';el.style.background='rgba(244,63,94,0.12)';el.style.borderColor='rgba(244,63,94,0.25)';}
+  else{el.style.color='#a78bfa';el.style.background='rgba(124,111,255,0.12)';el.style.borderColor='rgba(124,111,255,0.25)';}
+  el.style.display='block';
+}
+function doJoin(code){
+  G.room={code,max:4};G.hideMin=5;G.seekMin=10;G.isHost=false;G.players={};G.foundSet=new Set();G.winShown=false;
+  addPlayer(G.myId,G.myName,1,false);
+  document.getElementById('lobbyCode').textContent=code;
+  document.getElementById('maxCount').textContent='—';
+  renderLobby();go('s-lobby');subscribeRoom(code);broadcastJoin();
+}
+
+function subscribeRoom(code){
+  if(G.channel)G.channel.unsubscribe();
+  G.channel=sb.channel('room:'+code,{config:{broadcast:{self:false}}});
+  G.channel
+    .on('broadcast',{event:'state'},({payload})=>applyState(payload))
+    .on('broadcast',{event:'join'},({payload})=>onPlayerJoin(payload))
+    .on('broadcast',{event:'chat'},({payload})=>onChatMsg(payload))
+    .on('broadcast',{event:'kick'},({payload})=>onKick(payload))
+    .on('broadcast',{event:'countdown'},({payload})=>onCountdown(payload))
+    .on('broadcast',{event:'win'},({payload})=>onWin(payload))
+    .on('broadcast',{event:'ping'},()=>{if(G.isHost)broadcastState();})
+    .subscribe();
+}
+function broadcastState(){
+  if(!G.channel)return;
+  G.channel.send({type:'broadcast',event:'state',payload:{players:G.players,phase:G.phase,seeker:G.seeker,hideMin:G.hideMin,seekMin:G.seekMin,foundSet:[...G.foundSet],timeLeft:G.timeLeft,hintActive:G.hintActive,maxPlayers:G.room?.max||4}});
+}
+function broadcastJoin(){
+  if(!G.channel)return;
+  G.channel.send({type:'broadcast',event:'join',payload:{id:G.myId,name:G.myName,idx:1}});
+}
+function applyState(payload){
+  const wasLobby=G.phase==='lobby';
+  G.players=payload.players||{};G.phase=payload.phase||'lobby';G.seeker=payload.seeker||'';
+  G.hideMin=payload.hideMin||5;G.seekMin=payload.seekMin||10;
+  G.foundSet=new Set(payload.foundSet||[]);G.hintActive=payload.hintActive||false;
+  if(payload.maxPlayers)G.room={...G.room,max:payload.maxPlayers};
+  document.getElementById('maxCount').textContent=G.room?.max||'—';
+  if(G.phase==='lobby'){renderLobby();}
+  else{
+    if(wasLobby){go('s-game');document.getElementById('chatMsgs').innerHTML='';setMyNamePill();updatePhaseUI();renderGamePlayers();if(!G.timer)runTimerFrom(payload.timeLeft||G.hideMin*60);}
+    else{updatePhaseUI();renderGamePlayers();}
+  }
+}
+function onPlayerJoin(payload){
+  if(G.players[payload.id])return;
+  const idx=Object.keys(G.players).length%AVC.length;
+  addPlayer(payload.id,payload.name,idx,false);
+  renderLobby();if(G.isHost)broadcastState();
+}
+function onChatMsg(payload){addMsg(payload);}
+function onKick(payload){
+  if(payload.targetId===G.myId){clearInterval(G.timer);if(G.channel)G.channel.unsubscribe();G.channel=null;go('s-kicked');}
+  else{if(G.players[payload.targetId])G.players[payload.targetId].kicked=true;renderLobby();renderGamePlayers();}
+}
+function onCountdown(payload){G.seeker=payload.seeker;showCountdown();}
+function onWin(payload){
+  if(G.winShown)return;G.winShown=true;
+  showWinOverlay(payload.icon,payload.title,payload.sub,payload.name);
+  setTimeout(()=>{hideWinOverlay();showResult(payload);},3200);
+}
+
+function renderLobby(){
+  const c=document.getElementById('lobbyPlayers');
+  const list=Object.values(G.players).filter(p=>!p.kicked);
+  document.getElementById('playerCount').textContent=list.length;
+  c.innerHTML='';
+  list.forEach(p=>{
+    const d=document.createElement('div');d.className='player-row';
+    const col=AVC[p.idx%AVC.length];
+    d.innerHTML=`<div class="avatar" style="background:${col}22;border:2px solid ${col};color:${col}">${av(p.name)}</div><span style="flex:1;font-size:15px;font-weight:600">${p.name}${p.id===G.myId?' <span style="color:var(--text3);font-size:12px;font-weight:400">(أنا)</span>':''}</span>${p.isHost?'<span class="badge-host">منظم</span>':''}<div class="badge-wait"></div>`;
+    c.appendChild(d);
+  });
+}
+
+function doStartCountdown(){
+  const ids=Object.keys(G.players).filter(id=>!G.players[id].kicked);
+  if(ids.length<2){alert('يحتاج على الأقل لاعبان');return}
+  G.seeker=ids[Math.floor(Math.random()*ids.length)];
+  G.channel&&G.channel.send({type:'broadcast',event:'countdown',payload:{seeker:G.seeker}});
+  broadcastState();showCountdown();
+}
+function showCountdown(){
+  const ov=document.getElementById('cdOverlay');
+  ov.classList.add('show');
+  document.getElementById('cdSeekerBox').style.display='none';
+  let n=3;const ne=document.getElementById('cdNum');
+  ne.style.display='block';ne.textContent=n;
+  const tick=setInterval(()=>{
+    n--;
+    if(n>0){ne.style.animation='none';void ne.offsetWidth;ne.style.animation='cdBig 0.9s ease';ne.textContent=n;}
+    else{
+      clearInterval(tick);ne.style.display='none';
+      document.getElementById('cdSeekerName').textContent=G.players[G.seeker]?.name||'';
+      document.getElementById('cdSeekerBox').style.display='block';
+      setTimeout(()=>{ov.classList.remove('show');ne.style.display='block';startGame();},2400);
+    }
+  },1000);
+}
+
+function startGame(){
+  go('s-game');
+  if(G.isHost)document.getElementById('kickBtnGame').style.display='block';
+  G.phase='hide';G.foundSet=new Set();G.winShown=false;
+  G.timeLeft=G.hideMin*60;G.totalTime=G.hideMin*60;
+  G.hintActive=false;G.hintSent=false;G.chatOpen=false;G.newMsgs=0;
+  document.getElementById('hintCard').style.display='none';
+  document.getElementById('chatDot').style.display='none';
+  document.getElementById('chatMsgs').innerHTML='';
+  setMyNamePill();updatePhaseUI();renderGamePlayers();
+  sysMsg('🙈 مرحلة الاختباء بدأت! اختبئ الآن!');
+  runTimerFrom(G.hideMin*60);if(G.isHost)broadcastState();
+}
+function setMyNamePill(){
+  document.getElementById('myNameTxt').textContent=G.myName;
+  document.getElementById('myNamePill').style.display='inline-flex';
+}
+function updatePhaseUI(){
+  const bn=document.getElementById('phaseBanner');
+  const ph=document.getElementById('timerPhase');
+  const fill=document.getElementById('pfill');
+  const sb=document.getElementById('seekerBox');
+  if(G.phase==='hide'){
+    bn.className='phase-banner phase-hide';bn.textContent='🙈 مرحلة الاختباء';
+    ph.textContent='وقت الاختباء';
+    fill.style.background='linear-gradient(90deg,#10b981,#34d399)';sb.style.display='none';
+  }else{
+    bn.className='phase-banner phase-seek';bn.textContent='🔍 مرحلة البحث';
+    ph.textContent='وقت البحث';
+    fill.style.background='linear-gradient(90deg,#f43f5e,#fb7185)';sb.style.display='flex';
+    const sp=G.players[G.seeker];
+    if(sp){document.getElementById('seekerAv').textContent=av(sp.name);document.getElementById('seekerNameEl').textContent=sp.name+(G.seeker===G.myId?' (أنا)':'');}
+    document.getElementById('foundBadge').textContent=G.foundSet.size+' مكتشف';
+  }
+}
+function runTimerFrom(seconds){
+  clearInterval(G.timer);G.timeLeft=seconds;
+  G.totalTime=G.phase==='hide'?G.hideMin*60:G.seekMin*60;
+  G.timer=setInterval(()=>{
+    G.timeLeft--;
+    const m=Math.floor(G.timeLeft/60).toString().padStart(2,'0');
+    const s=(G.timeLeft%60).toString().padStart(2,'0');
+    const tv=document.getElementById('timerVal');
+    tv.textContent=m+':'+s;
+    const pct=(G.timeLeft/G.totalTime)*100;
+    document.getElementById('pfill').style.width=pct+'%';
+    if(G.timeLeft<=60)tv.className='timer-num red';
+    else if(G.timeLeft<=180)tv.className='timer-num orange';
+    else tv.className='timer-num';
+    if(G.phase==='seek'&&G.timeLeft<=180&&!G.hintActive){
+      G.hintActive=true;
+      document.getElementById('phaseBanner').className='phase-banner phase-hint';
+      document.getElementById('phaseBanner').textContent='⚡ آخر 3 دقائق! أرسلوا تلميحاتكم!';
+      if(G.seeker!==G.myId&&!G.hintSent)document.getElementById('hintCard').style.display='block';
+      sysMsg('تبقى 3 دقائق! على المختبئين إرسال تلميح الآن');
+    }
+    if(G.timeLeft<=0){
+      clearInterval(G.timer);
+      if(G.phase==='hide'){
+        G.phase='seek';G.totalTime=G.seekMin*60;
+        updatePhaseUI();sysMsg('🔍 مرحلة البحث بدأت! '+(G.players[G.seeker]?.name||'')+' ابحث عنهم!');
+        runTimerFrom(G.seekMin*60);if(G.isHost)broadcastState();
+      }else{triggerEnd('hiders');}
+    }
+  },1000);
+}
+
+function renderGamePlayers(){
+  const c=document.getElementById('gamePlayers');c.innerHTML='';
+  const amSeeker=G.seeker===G.myId;
+  Object.values(G.players).forEach(p=>{
+    if(p.kicked)return;
+    const found=G.foundSet.has(p.id);const isSk=p.id===G.seeker;
+    const d=document.createElement('div');
+    d.className='player-card'+(isSk?' is-seeker':found?' found':'');
+    const col=AVC[p.idx%AVC.length];
+    const avStyle=isSk?`border-color:rgba(244,63,94,0.6);background:rgba(244,63,94,0.15);color:#fb7185`:found?`border-color:rgba(245,158,11,0.6);background:rgba(245,158,11,0.15);color:#fbbf24`:`border-color:${col}88;background:${col}18;color:${col}`;
+    const status=isSk?'الباحث':found?'مكتشف':'مختبئ';
+    const hintHTML=p.hint?`<div class="pc-hint"><div class="pc-hint-lbl">💡 تلميح</div>${p.hint}</div>`:'';
+    let discBtn='';
+    if(!isSk&&amSeeker&&G.phase==='seek'){
+      const cls=found?'discovered':'undiscovered';const lbl=found?'✓ إلغاء':'اكتشاف';
+      discBtn=`<button class="disc-btn ${cls}" onclick="toggleFound('${p.id}')">${lbl}</button>`;
+    }
+    d.innerHTML=`<div class="pc-av" style="${avStyle}">${av(p.name)}</div><div class="pc-name">${p.name}${p.id===G.myId?' (أنا)':''}</div><div class="pc-status">${status}</div>${hintHTML}${discBtn}`;
+    c.appendChild(d);
+  });
+  if(G.phase==='seek')document.getElementById('foundBadge').textContent=G.foundSet.size+' مكتشف';
+}
+
+function toggleFound(pid){
+  if(G.phase!=='seek')return;
+  if(G.foundSet.has(pid)){G.foundSet.delete(pid);sysMsg('تم إلغاء اكتشاف '+G.players[pid].name);}
+  else{G.foundSet.add(pid);sysMsg('🚩 '+G.players[pid].name+' تم اكتشافه!');}
+  renderGamePlayers();if(G.isHost)broadcastState();checkWin();
+}
+function checkWin(){
+  if(G.phase!=='seek')return;
+  const hiders=Object.values(G.players).filter(p=>p.id!==G.seeker&&!p.kicked);
+  if(hiders.length===0)return;
+  const safe=hiders.filter(p=>!G.foundSet.has(p.id));
+  if(safe.length===0){triggerEnd('seeker');return;}
+  if(safe.length===1&&hiders.length>1){triggerEnd('lastHider',safe[0]);}
+}
+function triggerEnd(winner,lastHider){
+  clearInterval(G.timer);
+  const hiders=Object.values(G.players).filter(p=>p.id!==G.seeker&&!p.kicked);
+  const safe=hiders.filter(p=>!G.foundSet.has(p.id));
+  let icon,title,sub,name;
+  if(winner==='seeker'){icon='🔍';title='الباحث انتصر!';sub='اكتشف الجميع';name=G.players[G.seeker]?.name||'';}
+  else if(winner==='lastHider'&&lastHider){icon='🏆';title=lastHider.name+' انتصر!';sub='آخر مختبئ تبقى!';name=lastHider.name;}
+  else{icon='🙈';title='المختبئون انتصروا!';sub=safe.length+' لاعبين نجوا!';name='المختبئون';}
+  const payload={icon,title,sub,name,winner,lastHiderId:lastHider?.id||null,foundSet:[...G.foundSet],players:G.players,seeker:G.seeker};
+  if(G.isHost&&G.channel)G.channel.send({type:'broadcast',event:'win',payload});
+  if(!G.winShown){G.winShown=true;showWinOverlay(icon,title,sub,name);setTimeout(()=>{hideWinOverlay();showResult(payload);},3200);}
+}
+function showWinOverlay(icon,title,sub,name){
+  document.getElementById('winIcon').textContent=icon;document.getElementById('winTitle').textContent=title;
+  document.getElementById('winSub').textContent=sub;document.getElementById('winName').textContent=name;
+  document.getElementById('winOverlay').classList.add('show');
+}
+function hideWinOverlay(){document.getElementById('winOverlay').classList.remove('show');}
+function showResult(payload){
+  go('s-result');
+  document.getElementById('resultIcon').textContent=payload.icon;
+  document.getElementById('resultTitle').textContent=payload.title;
+  document.getElementById('resultSub').textContent=payload.sub;
+  const foundSet=new Set(payload.foundSet||[]);
+  const table=document.getElementById('resultTable');table.innerHTML='';
+  Object.values(payload.players||G.players).forEach(p=>{
+    if(p.kicked)return;
+    const found=foundSet.has(p.id);const isSk=p.id===(payload.seeker||G.seeker);
+    const isWinner=payload.lastHiderId&&p.id===payload.lastHiderId;
+    const col=isSk?'#f43f5e':isWinner?'#f59e0b':found?'#f59e0b':'#10b981';
+    const lbl=isSk?'باحث':isWinner?'فائز 🏆':found?'مكتشف':'نجا ✓';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><div style="display:flex;align-items:center;gap:8px"><div class="avatar" style="background:${col}22;border:2px solid ${col};color:${col};width:32px;height:32px;font-size:12px">${av(p.name)}</div><span style="font-weight:600;color:var(--text)">${p.name}</span></div></td><td style="text-align:left"><span class="result-tag" style="background:${col}18;color:${col};border:1px solid ${col}44">${lbl}</span></td>`;
+    table.appendChild(tr);
+  });
+  if(G.isHost){document.getElementById('continueBtn').style.display='block';document.getElementById('waitingContinue').style.display='none';}
+  else{document.getElementById('continueBtn').style.display='none';document.getElementById('waitingContinue').style.display='block';}
+}
+function continueGame(){
+  G.phase='lobby';G.foundSet=new Set();G.seeker='';G.winShown=false;G.hintActive=false;G.hintSent=false;
+  Object.values(G.players).forEach(p=>{p.found=false;p.hint='';});
+  broadcastState();renderLobby();go('s-lobby');
+}
+function sendHint(){
+  const h=document.getElementById('hintInput').value.trim();if(!h)return;
+  G.players[G.myId].hint=h;G.hintSent=true;
+  document.getElementById('hintCard').style.display='none';
+  const msg={type:'hint',author:G.myName,text:h};
+  addMsg(msg);G.channel&&G.channel.send({type:'broadcast',event:'chat',payload:msg});
+  renderGamePlayers();if(G.isHost)broadcastState();
+}
+function openChat(){G.chatOpen=true;G.newMsgs=0;document.getElementById('chatDot').style.display='none';document.getElementById('chatOverlay').classList.add('open');}
+function closeChat(){G.chatOpen=false;document.getElementById('chatOverlay').classList.remove('open');}
+function sysMsg(txt){addMsg({type:'system',text:txt});}
+function addMsg(msg){
+  const area=document.getElementById('chatMsgs');const d=document.createElement('div');
+  const mine=msg.author===G.myName;
+  if(msg.type==='system'){d.className='chat-msg system-msg';d.textContent=msg.text;}
+  else if(msg.type==='hint'){d.className='chat-msg hint-msg';d.innerHTML=`<div class="msg-author" style="color:#fbbf24">💡 تلميح — ${msg.author}</div>${msg.text}`;}
+  else{d.className='chat-msg'+(mine?' mine':'');d.innerHTML=`<div class="msg-author" style="color:${mine?'#a78bfa':'var(--text2)'}">${msg.author}</div>${msg.text}`;}
+  area.appendChild(d);area.scrollTop=area.scrollHeight;
+  if(!G.chatOpen){G.newMsgs++;document.getElementById('chatDot').style.display='block';}
+}
+function sendChat(){
+  const inp=document.getElementById('chatInp');const txt=inp.value.trim();if(!txt)return;
+  const msg={type:'msg',author:G.myName,text:txt};
+  addMsg(msg);G.channel&&G.channel.send({type:'broadcast',event:'chat',payload:msg});inp.value='';
+}
+function openKick(){document.getElementById('kickOverlay').classList.add('open');renderKickList();}
+function closeKick(){document.getElementById('kickOverlay').classList.remove('open');}
+function renderKickList(){
+  const c=document.getElementById('kickList');c.innerHTML='';
+  Object.values(G.players).forEach(p=>{
+    if(p.id===G.myId||p.kicked)return;
+    const d=document.createElement('div');d.className='kick-player-row';
+    const col=AVC[p.idx%AVC.length];
+    d.innerHTML=`<div class="avatar" style="background:${col}22;border:2px solid ${col};color:${col}">${av(p.name)}</div><span style="flex:1;font-size:15px;font-weight:600;color:var(--text)">${p.name}</span><span class="kick-tag">طرد</span>`;
+    d.onclick=()=>kickPlayer(p.id,p.name);c.appendChild(d);
+  });
+  if(c.innerHTML==='')c.innerHTML='<div style="color:var(--text3);text-align:center;padding:24px;font-size:14px">لا يوجد لاعبون لطردهم</div>';
+}
+function kickPlayer(pid,pname){
+  if(!confirm('هل تريد طرد '+pname+'؟'))return;
+  G.players[pid].kicked=true;
+  G.channel&&G.channel.send({type:'broadcast',event:'kick',payload:{targetId:pid}});
+  broadcastState();closeKick();renderLobby();renderGamePlayers();sysMsg('⛔ '+pname+' تم طرده من الغرفة');
+}
+function leaveRoom(){
+  if(!confirm('هل تريد الخروج من الغرفة؟'))return;
+  clearInterval(G.timer);if(G.channel)G.channel.unsubscribe();
+  G.channel=null;G.players={};G.foundSet=new Set();G.phase='lobby';go('s-menu');
+}
+function resetGame(){
+  clearInterval(G.timer);if(G.channel)G.channel.unsubscribe();
+  G.channel=null;G.players={};G.foundSet=new Set();G.phase='lobby';G.winShown=false;go('s-menu');
+}
+document.getElementById('chatInp').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat()});
+document.getElementById('joinCode').addEventListener('input',e=>{
+  e.target.value=e.target.value.replace(/\D/g,'').substr(0,6);
+  document.getElementById('joinError').style.display='none';
+});
+</script>
+</body>
+</html>
