@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>كاشير — نقطة بيع</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800&family=Tajawal:wght@400;500;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --shell:      #1D2024;
+    --shell-dark: #14161A;
+    --shell-edge: #2B2F35;
+    --shell-card: #23262B;
+    --shell-card2:#2C2F35;
+    --shell-txt:  #B7B9BE;
+    --screen:     #F6F3EB;
+    --screen-line:#E7E1D2;
+    --ink:        #21231F;
+    --ink-soft:   #6C6A5F;
+    --amber:      #F0A73C;
+    --amber-deep: #C97F1D;
+    --green:      #2FA968;
+    --green-deep: #1D7A4B;
+    --red:        #D5533C;
+    --line:       #D9D2BE;
+    --accent:     var(--amber);
+    --accent-deep:var(--amber-deep);
+  }
+  body.restaurant{ --accent: var(--green); --accent-deep: var(--green-deep); }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: radial-gradient(circle at 50% -10%, #2A2E34, #0E0F11 72%);
+    min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Tajawal', sans-serif;
+    padding: 28px 14px;
+  }
+
+  /* ===== الهيكل الخارجي ===== */
+  .pos-shell{
+    width:100%;
+    max-width:1180px;
+    background: linear-gradient(180deg, var(--shell), var(--shell-dark));
+    border:1px solid var(--shell-edge);
+    border-radius: 28px;
+    padding: 20px 20px 22px;
+    box-shadow: 0 40px 70px -25px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.05);
+    position:relative;
+  }
+  .pos-shell::before{
+    content:""; position:absolute; top:9px; left:50%; transform:translateX(-50%);
+    width:64px; height:4px; border-radius:4px;
+    background: repeating-linear-gradient(90deg, #3a3d42 0 6px, transparent 6px 12px); opacity:.55;
+  }
+
+  /* ===== الشريط العلوي ===== */
+  .topbar{ display:flex; align-items:center; justify-content:space-between; padding: 8px 8px 16px; flex-wrap:wrap; gap:14px; }
+  .brand{ display:flex; align-items:center; gap:12px; }
+  .brand .icon{ width:38px; height:38px; border-radius:11px; background: linear-gradient(155deg, #33373D, #202226); border:1px solid #3D4147; display:flex; align-items:center; justify-content:center; }
+  .brand .icon svg{ width:20px; height:20px; color: var(--accent); transition: color .35s ease; }
+  .brand .dot{ width:9px;height:9px;border-radius:50%; background: var(--green); display:inline-block; margin-inline-end:6px; box-shadow: 0 0 10px var(--green); animation: pulse 2.4s infinite ease-in-out; }
+  @keyframes pulse{ 0%,100%{opacity:1} 50%{opacity:.3} }
+  .brand h1{ font-family:'Cairo', sans-serif; color:#EFEDE6; font-size:20px; margin:0; letter-spacing:.3px; }
+  .brand .cap{ display:flex; align-items:center; font-size:11px; color:#8A8D93; font-weight:500; margin-top:3px; }
+
+  .topbar-actions{ display:flex; align-items:center; gap:10px; }
+  .icon-btn{ width:42px;height:42px;border-radius:12px;border:1px solid #34373C;background:#1B1D21;color:var(--shell-txt);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s ease; }
+  .icon-btn:hover{ background:#25282D; color:#fff; border-color:#454952; }
+  .icon-btn svg{ width:18px;height:18px; }
+
+  /* ===== مفتاح تبديل الوضع ===== */
+  .mode-switch{ display:flex; align-items:center; background:#111316; border:1px solid #34373C; border-radius:999px; padding:4px; position:relative; box-shadow: inset 0 2px 5px rgba(0,0,0,.6); }
+  .mode-switch button{ border:none; background:transparent; cursor:pointer; font-family:'Cairo', sans-serif; font-weight:700; font-size:13px; color:#9A9DA2; padding: 10px 18px; border-radius:999px; position:relative; z-index:2; display:flex; align-items:center; gap:7px; transition:color .35s ease; white-space:nowrap; }
+  .mode-switch button.active{ color:#1A1B18; }
+  .mode-switch .thumb{ position:absolute; top:4px; bottom:4px; right:4px; width:calc(50% - 4px); border-radius:999px; background: linear-gradient(180deg, var(--amber), var(--amber-deep)); box-shadow: 0 4px 12px rgba(240,167,60,.4); transition: transform .38s cubic-bezier(.65,0,.35,1), background .35s ease; z-index:1; }
+  .mode-switch.mode-restaurant .thumb{ transform: translateX(calc(-100% - 0px)); background: linear-gradient(180deg, var(--green), var(--green-deep)); box-shadow: 0 4px 12px rgba(47,169,104,.4); }
+  .mode-switch svg{ width:15px; height:15px; }
+
+  /* ===== شريط اللون المميز ===== */
+  .accent-bar{ height:3px; border-radius:3px; margin:0 6px 14px; background: linear-gradient(90deg, var(--accent), transparent); transition: background .4s ease; }
+
+  /* ===== مربع المدفوعات المصغّر (أعلى) ===== */
+  .stats-bar{ display:flex; align-items:center; gap:8px; background: var(--shell-card); border:1px solid #33363c; border-radius:14px; padding:5px 6px; margin:0 6px 16px; }
+  .stats-summary{ flex:1; display:flex; align-items:center; gap:8px; background:transparent; border:none; cursor:pointer; padding:7px 8px; color:#EDEBE3; text-align:right; }
+  .stats-summary .swico{ width:30px;height:30px;border-radius:9px; background:#1B1D21; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .stats-summary .swico svg{ width:15px;height:15px; color: var(--accent); }
+  .stats-label{ font-family:'Cairo'; font-weight:700; font-size:12.5px; color:#D8D6CE; white-space:nowrap; }
+  .stats-pills{ display:flex; gap:6px; flex-wrap:wrap; margin-inline-start:4px; }
+  .stats-pill{ font-family:'IBM Plex Mono'; font-size:11.5px; color:#EDEBE3; background: var(--shell-card2); padding:5px 10px; border-radius:8px; display:flex; gap:4px; white-space:nowrap; }
+  .stats-pill b{ color: var(--accent); font-weight:700; }
+  .stats-pill.total b{ color:#fff; }
+  .chevron{ width:14px;height:14px; color:#7d7f84; transition: transform .3s ease; margin-inline-start:auto; flex-shrink:0; }
+  .stats-bar.open .chevron{ transform: rotate(180deg); }
+  .stats-reset{ border:none; background: var(--shell-card2); color:var(--shell-txt); width:38px;height:38px;border-radius:10px; display:flex;align-items:center;justify-content:center;cursor:pointer; transition: all .2s ease; flex-shrink:0; }
+  .stats-reset:hover{ background: var(--red); color:#fff; }
+  .stats-reset svg{ width:16px;height:16px; }
+
+  .stats-detail{ max-height:0; overflow:hidden; transition: max-height .35s ease; margin:0 6px; }
+  .stats-detail.open{ max-height:190px; overflow-y:auto; }
+  .stats-detail-inner{ display:flex; flex-wrap:wrap; gap:8px; padding:4px 6px 12px; }
+  .payments-empty{ font-size:12px; color:#8A8D93; padding:8px 6px; font-family:'Tajawal'; }
+  .payment-chip{ font-family:'IBM Plex Mono'; font-size:11.5px; color:#EDEBE3; background: var(--shell-card2); border:1px solid #383B41; border-radius:9px; padding:6px 10px; display:flex; align-items:center; gap:7px; direction:ltr; }
+  .payment-chip .inv{ font-family:'Tajawal'; font-size:10px; color:#8A8D93; direction:rtl; }
+
+  /* ===== الشاشة ===== */
+  .workspace{ background: var(--screen); border-radius: 20px; padding: 22px; display:grid; grid-template-columns: 1.35fr 1fr; gap: 20px; min-height: 540px; box-shadow: inset 0 2px 10px rgba(0,0,0,.08); }
+  @media (max-width: 760px){ .workspace{ grid-template-columns: 1fr; } }
+
+  .panel-title-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; gap:10px; flex-wrap:wrap; }
+  .panel-title{ font-family:'Cairo', sans-serif; font-size:13px; font-weight:700; color: var(--ink-soft); text-transform:uppercase; letter-spacing:.5px; margin:0; display:flex; align-items:center; gap:8px; }
+  .panel-title::before{ content:""; width:6px; height:6px; background: var(--accent-deep); transform:rotate(45deg); }
+  .title-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+
+  .btn-add, .btn-manage{ display:flex; align-items:center; gap:6px; font-family:'Cairo'; font-weight:700; font-size:12px; padding:7px 13px; border-radius:999px; cursor:pointer; transition: all .2s ease; }
+  .btn-add{ border:1.5px dashed var(--accent-deep); background:#FFF7EA; color:var(--accent-deep); }
+  .btn-add:hover{ background: var(--accent); color:#3a2a08; border-style:solid; }
+  body.restaurant .btn-add{ background:#EEFBF3; }
+  body.restaurant .btn-add:hover{ color:#0d2e1c; }
+  .btn-manage{ border:1.5px solid var(--line); background:#fff; color:var(--ink-soft); }
+  .btn-manage:hover{ border-color:var(--red); color:var(--red); background:#FFF3F1; }
+  .btn-add svg, .btn-manage svg{ width:14px; height:14px; }
+
+  /* ===== وضع الباركود ===== */
+  #retailPanel .scan-zone{ background:#fff; border:1.5px dashed var(--line); border-radius:16px; padding: 22px 20px; position:relative; overflow:hidden; margin-bottom:16px; }
+  #retailPanel .scan-zone.flash{ animation: flashGood .5s ease; }
+  #retailPanel .scan-zone.error{ animation: flashBad .45s ease; }
+  @keyframes flashGood{ 0%{ box-shadow: inset 0 0 0 3px var(--green);} 100%{ box-shadow: inset 0 0 0 0 transparent;} }
+  @keyframes flashBad{ 0%,100%{ transform:translateX(0);} 25%{ transform:translateX(-6px);} 75%{ transform:translateX(6px);} }
+
+  .barcode-icon{ display:flex; justify-content:center; margin-bottom:14px; position:relative; }
+  .barcode-icon svg{ width:150px; height:56px; }
+  .scanline{ position:absolute; top:0; right:50%; transform:translateX(50%); width:150px; height:2px; background: var(--red); box-shadow: 0 0 8px var(--red); animation: sweep 2.6s ease-in-out infinite; opacity:.85; }
+  @keyframes sweep{ 0%,100%{ top:0; } 50%{ top:54px; } }
+
+  #barcodeInput{ width:100%; font-family:'IBM Plex Mono', monospace; font-size:20px; letter-spacing:3px; text-align:center; border:none; border-bottom:2px solid var(--line); background:transparent; padding: 10px 4px; color: var(--ink); outline:none; direction:ltr; }
+  #barcodeInput:focus{ border-color: var(--accent-deep); }
+  .scan-hint{ text-align:center; font-size:12px; color:var(--ink-soft); margin-top:10px; }
+
+  .demo-codes{ margin-top:16px; }
+  .demo-codes p{ font-size:12px; color:var(--ink-soft); margin:0 0 8px; }
+  .chips-wrap{ display:flex; flex-wrap:wrap; gap:8px; }
+  .chip{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; background:#fff; border:1px solid var(--line); color: var(--ink); padding:7px 11px; border-radius:9px; cursor:pointer; transition: all .2s ease; direction:ltr; }
+  .chip:hover{ border-color: var(--accent-deep); color:var(--accent-deep); background:#FFF7EA; transform:translateY(-2px); }
+  .chip b{ display:block; font-family:'Tajawal'; font-weight:500; font-size:11px; color:var(--ink-soft); margin-top:2px; direction:rtl; }
+
+  /* ===== وضع المطعم ===== */
+  #restaurantPanel{ display:none; }
+  .cat-tabs{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+  .cat-tabs button{ font-family:'Cairo', sans-serif; font-weight:700; font-size:12.5px; border:1px solid var(--line); background:#fff; color: var(--ink-soft); padding:8px 16px; border-radius:999px; cursor:pointer; transition: all .2s ease; }
+  .cat-tabs button.active{ background: var(--green); border-color: var(--green); color:#fff; }
+
+  .item-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap:10px; }
+  .item-card{ background:#fff; border:1px solid var(--line); border-radius:13px; padding:14px 10px; text-align:center; cursor:pointer; transition: transform .15s ease, border-color .2s ease, box-shadow .2s ease; }
+  .item-card:hover{ transform: translateY(-3px); border-color:var(--green); box-shadow:0 10px 18px -10px rgba(47,169,104,.4); }
+  .item-card .name{ font-weight:700; font-size:13.5px; color:var(--ink); margin-bottom:6px; }
+  .item-card .price{ font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--green-deep); direction:ltr; }
+  .empty-note{ font-size:12.5px; color:var(--ink-soft); padding:20px 4px; text-align:center; }
+
+  /* ===== الفاتورة ===== */
+  .ticket-panel{ background:#fff; border-radius:16px; padding:20px 18px; display:flex; flex-direction:column; position:relative; }
+  .ticket-panel::before, .ticket-panel::after{ content:""; position:absolute; right:0; left:0; height:10px; background-image: radial-gradient(circle, var(--screen) 5px, transparent 5.5px); background-size: 16px 10px; background-repeat:repeat-x; }
+  .ticket-panel::before{ top:-5px; }
+  .ticket-panel::after{ bottom:-5px; transform: rotate(180deg); }
+
+  .ticket-letterhead{ text-align:center; padding-bottom:12px; margin-bottom:12px; border-bottom:1.5px dashed var(--line); }
+  .lh-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; gap:6px; }
+  .lh-store{ font-family:'Cairo'; font-weight:800; font-size:15.5px; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ticket-mode-label{ font-family:'IBM Plex Mono', monospace; font-size:10px; padding:3px 8px; border-radius:6px; background: var(--amber); color:#3a2a08; font-weight:600; flex-shrink:0; }
+  .ticket-mode-label.restaurant{ background: var(--green); color:#0d2e1c; }
+  .lh-meta{ display:flex; justify-content:space-between; font-size:11px; color:var(--ink-soft); margin-bottom:4px; }
+  .lh-invoice{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--ink-soft); }
+  .lh-invoice b{ color:var(--ink); }
+
+  .ticket-items{ flex:1; overflow-y:auto; max-height: 250px; display:flex; flex-direction:column; gap:2px; }
+  .ticket-items::-webkit-scrollbar{ width:5px; }
+  .ticket-items::-webkit-scrollbar-thumb{ background: var(--line); border-radius:4px; }
+  .ticket-empty{ text-align:center; color: var(--ink-soft); font-size:13px; padding: 34px 10px; line-height:1.9; }
+
+  .t-item{ display:flex; align-items:center; gap:10px; padding:9px 2px; border-bottom:1px dotted var(--screen-line); font-size:13px; }
+  .t-item .qty{ font-family:'IBM Plex Mono', monospace; background: var(--screen); border-radius:6px; min-width:26px; text-align:center; font-size:12px; padding:2px 4px; color:var(--ink); }
+  .t-item .nm{ flex:1; color:var(--ink); font-weight:500; }
+  .t-item .pr{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-soft); direction:ltr; }
+  .t-item .rm{ border:none; background:none; cursor:pointer; color:#C6C1AF; font-size:15px; line-height:1; padding:2px 4px; transition: color .2s ease; }
+  .t-item .rm:hover{ color: var(--red); }
+
+  .ticket-totals{ border-top:1.5px dashed var(--line); margin-top:12px; padding-top:10px; }
+  .trow{ display:flex; justify-content:space-between; font-size:12.5px; color:var(--ink-soft); margin-bottom:6px; }
+  .trow.grand{ font-family:'IBM Plex Mono', monospace; font-weight:700; font-size:18px; color:var(--ink); border-top:1px solid var(--screen-line); padding-top:9px; margin-top:6px; }
+  .trow .val{ direction:ltr; font-family:'IBM Plex Mono', monospace; font-size:12.5px; }
+
+  .pay-method{ display:flex; align-items:center; justify-content:space-between; margin-top:12px; }
+  .pay-method > span{ font-size:12px; font-weight:700; color:var(--ink-soft); font-family:'Cairo'; }
+  .method-toggle{ display:flex; background:var(--screen); border-radius:999px; padding:3px; gap:2px; }
+  .method-toggle button{ border:none; background:transparent; font-family:'Cairo'; font-weight:700; font-size:11.5px; padding:7px 14px; border-radius:999px; cursor:pointer; color:var(--ink-soft); transition:all .2s ease; }
+  .method-toggle button.active{ background:#fff; color:var(--ink); box-shadow:0 2px 6px rgba(0,0,0,.08); }
+
+  .ticket-actions{ display:flex; gap:8px; margin-top:14px; }
+  .ticket-actions button{ flex:1; border:none; border-radius:11px; font-family:'Cairo'; font-weight:700; font-size:13.5px; padding:12px 8px; cursor:pointer; transition: transform .15s ease, filter .2s ease; }
+  .ticket-actions button:active{ transform: scale(.97); }
+  .btn-clear{ background:#F1EEE5; color: var(--ink-soft); }
+  .btn-clear:hover{ background:#E7E2D3; }
+  .btn-pay{ background: linear-gradient(180deg, var(--accent), var(--accent-deep)); color:#3a2a08; }
+  body.restaurant .btn-pay{ color:#0d2e1c; }
+  .btn-pay:hover{ filter:brightness(1.06); }
+
+  .ticket-footer{ text-align:center; font-size:10px; color:var(--ink-soft); margin-top:12px; opacity:.65; font-family:'Tajawal'; }
+
+  /* ===== نوافذ منبثقة ===== */
+  .modal-overlay{ position:fixed; inset:0; background:rgba(15,16,18,.6); backdrop-filter: blur(3px); display:flex; align-items:center; justify-content:center; z-index:100; opacity:0; pointer-events:none; transition: opacity .25s ease; padding:16px; }
+  .modal-overlay.show{ opacity:1; pointer-events:all; }
+  .modal-box{ background:#fff; border-radius:18px; padding:24px; width:100%; max-width:370px; box-shadow: 0 30px 60px rgba(0,0,0,.4); transform: scale(.92) translateY(10px); transition: transform .3s cubic-bezier(.34,1.56,.64,1); max-height:88vh; overflow-y:auto; }
+  .modal-box.wide{ max-width:440px; }
+  .modal-overlay.show .modal-box{ transform: scale(1) translateY(0); }
+  .modal-box h3{ font-family:'Cairo'; font-size:16px; margin:0 0 4px; color:var(--ink); }
+  .modal-sub{ font-size:11.5px; color:var(--ink-soft); margin:0 0 14px; }
+  .modal-box label{ display:block; font-size:12px; font-weight:700; color:var(--ink-soft); margin:12px 0 6px; }
+  .modal-box input, .modal-box select{ width:100%; padding:10px 12px; border-radius:9px; border:1.5px solid var(--line); font-family:'Tajawal'; font-size:13.5px; color:var(--ink); outline:none; background:#FBFAF6; }
+  .modal-box input:focus, .modal-box select:focus{ border-color: var(--accent-deep); }
+  .modal-actions{ display:flex; gap:8px; margin-top:20px; }
+  .modal-actions button{ flex:1; border:none; border-radius:10px; padding:11px; font-family:'Cairo'; font-weight:700; font-size:13px; cursor:pointer; }
+
+  .manage-toolbar{ display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+  .manage-toolbar button{ flex:1; min-width:140px; display:flex; align-items:center; justify-content:center; gap:6px; border:1.5px dashed var(--line); background:#FBFAF6; color:var(--ink-soft); font-family:'Cairo'; font-weight:700; font-size:11.5px; padding:9px 8px; border-radius:10px; cursor:pointer; transition:all .2s ease; }
+  .manage-toolbar button:hover{ border-color:var(--accent-deep); color:var(--accent-deep); background:#FFF7EA; }
+  .manage-toolbar svg{ width:14px; height:14px; }
+  .manage-hint{ font-size:11px; color:var(--ink-soft); margin:-6px 0 12px; line-height:1.7; background:#FBFAF6; padding:8px 10px; border-radius:9px; }
+
+  .manage-list{ max-height:260px; overflow-y:auto; border-top:1px solid var(--screen-line); }
+  .manage-row{ display:flex; align-items:center; gap:8px; padding:9px 2px; border-bottom:1px dotted var(--line); font-size:12.5px; }
+  .manage-row .mr-code{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--ink-soft); width:88px; flex-shrink:0; direction:ltr; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .manage-row .mr-name{ flex:1; color:var(--ink); font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .manage-row .mr-price{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--ink-soft); direction:ltr; flex-shrink:0; }
+  .manage-row .mr-del{ border:none; background:none; color:#C6C1AF; cursor:pointer; font-size:15px; flex-shrink:0; transition: color .2s ease; }
+  .manage-row .mr-del:hover{ color: var(--red); }
+
+  .toast{ position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:#1D2024; color:#F6F3EB; padding:12px 22px; border-radius:10px; font-family:'Cairo'; font-weight:700; font-size:13.5px; opacity:0; pointer-events:none; transition: all .35s ease; box-shadow:0 10px 25px rgba(0,0,0,.35); z-index:120; max-width:90vw; text-align:center; }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="pos-shell">
+  <div class="topbar">
+    <div class="brand">
+      <div class="icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a4 4 0 018 0v2"/><path d="M7 12h4"/></svg>
+      </div>
+      <div>
+        <h1>كاشير</h1>
+        <span class="cap"><i class="dot"></i><span id="modeCaption">وضع البيع بالباركود — للمحلات</span></span>
+      </div>
+    </div>
+
+    <div class="topbar-actions">
+      <div class="mode-switch" id="modeSwitch">
+        <div class="thumb"></div>
+        <button class="active" id="btnRetail" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5v14M7 5v14M11 5v10M15 5v14M19 5v10"/></svg>
+          محلات
+        </button>
+        <button id="btnRestaurant" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 3v18M4 3c0 3 3 3 3 6s-3 3-3 6M18 3v18M14 3v7a3 3 0 006 0V3"/></svg>
+          مطاعم
+        </button>
+      </div>
+      <button class="icon-btn" id="btnSettings" type="button" title="الإعدادات">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09A1.65 1.65 0 0015.4 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9c.24.44.6.8 1.05 1.03.2.1.42.16.65.19H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="accent-bar" id="accentBar"></div>
+
+  <!-- ==== مربع المدفوعات المصغّر ==== -->
+  <div class="stats-bar" id="statsBar">
+    <button class="stats-summary" id="statsToggle" type="button">
+      <span class="swico">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20"/></svg>
+      </span>
+      <span class="stats-label">المدفوعات</span>
+      <span class="stats-pills">
+        <span class="stats-pill">عدد: <b id="statCount">0</b></span>
+        <span class="stats-pill total">الإجمالي: <b id="statSum">0 د.ع</b></span>
+      </span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <button class="stats-reset" id="btnResetPayments" type="button" title="بدء من جديد">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+    </button>
+  </div>
+  <div class="stats-detail" id="statsDetail">
+    <div class="stats-detail-inner" id="paymentsList">
+      <div class="payments-empty" id="paymentsEmpty">لا توجد مدفوعات بعد</div>
+    </div>
+  </div>
+
+  <div class="workspace">
+    <!-- ==== لوحة الباركود (محلات) ==== -->
+    <section id="retailPanel">
+      <div class="panel-title-row">
+        <p class="panel-title">مسح المنتج</p>
+        <div class="title-actions">
+          <button class="btn-manage" id="btnOpenManageRetail" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            إدارة المنتجات
+          </button>
+          <button class="btn-add" id="btnOpenAddRetail" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            إضافة منتج
+          </button>
+        </div>
+      </div>
+      <div class="scan-zone" id="scanZone">
+        <div class="barcode-icon">
+          <div class="scanline"></div>
+          <svg viewBox="0 0 150 56" xmlns="http://www.w3.org/2000/svg">
+            <g fill="#21231F">
+              <rect x="0" y="4" width="3" height="48"/><rect x="6" y="4" width="1" height="48"/>
+              <rect x="11" y="4" width="4" height="48"/><rect x="19" y="4" width="1" height="48"/>
+              <rect x="24" y="4" width="2" height="48"/><rect x="30" y="4" width="3" height="48"/>
+              <rect x="37" y="4" width="1" height="48"/><rect x="42" y="4" width="4" height="48"/>
+              <rect x="50" y="4" width="2" height="48"/><rect x="55" y="4" width="1" height="48"/>
+              <rect x="60" y="4" width="3" height="48"/><rect x="67" y="4" width="4" height="48"/>
+              <rect x="75" y="4" width="1" height="48"/><rect x="80" y="4" width="2" height="48"/>
+              <rect x="86" y="4" width="3" height="48"/><rect x="93" y="4" width="1" height="48"/>
+              <rect x="98" y="4" width="4" height="48"/><rect x="106" y="4" width="2" height="48"/>
+              <rect x="112" y="4" width="1" height="48"/><rect x="117" y="4" width="3" height="48"/>
+              <rect x="124" y="4" width="4" height="48"/><rect x="132" y="4" width="1" height="48"/>
+              <rect x="137" y="4" width="2" height="48"/><rect x="143" y="4" width="3" height="48"/>
+            </g>
+          </svg>
+        </div>
+        <input type="text" id="barcodeInput" placeholder="— — — — — — — — — —" autocomplete="off" inputmode="numeric">
+        <p class="scan-hint">اكتب أو امسح الباركود — يُضاف فوراً بدون Enter</p>
+      </div>
+
+      <div class="demo-codes">
+        <p>منتجات المتجر (اضغط للتجربة):</p>
+        <div class="chips-wrap" id="chipsContainer"></div>
+      </div>
+    </section>
+
+    <!-- ==== لوحة الاختيارات (مطاعم) ==== -->
+    <section id="restaurantPanel">
+      <div class="panel-title-row">
+        <p class="panel-title">اختر الصنف</p>
+        <div class="title-actions">
+          <button class="btn-manage" id="btnOpenManageRestaurant" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            إدارة الأصناف
+          </button>
+          <button class="btn-add" id="btnOpenAddRestaurant" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            إضافة منتج
+          </button>
+        </div>
+      </div>
+      <div class="cat-tabs" id="catTabs"></div>
+      <div class="item-grid" id="itemGrid"></div>
+    </section>
+
+    <!-- ==== الفاتورة ==== -->
+    <aside class="ticket-panel">
+      <div class="ticket-letterhead">
+        <div class="lh-top">
+          <span class="lh-store" id="lhStore">بقالة الرافدين</span>
+          <span class="ticket-mode-label" id="ticketModeLabel">باركود</span>
+        </div>
+        <div class="lh-meta">
+          <span id="lhCashier">الكاشير: —</span>
+          <span id="lhDate">—</span>
+        </div>
+        <div class="lh-invoice">فاتورة رقم <b id="lhInvoice">#1001</b></div>
+      </div>
+
+      <div class="ticket-items" id="ticketItems">
+        <div class="ticket-empty" id="ticketEmpty">لا توجد أصناف بعد<br>ابدأ بمسح باركود أو اختيار صنف</div>
+      </div>
+
+      <div class="ticket-totals">
+        <div class="trow"><span>عدد الأصناف</span><span class="val" id="totalCount">0</span></div>
+        <div class="trow"><span>المجموع الفرعي</span><span class="val" id="subTotal">0 د.ع</span></div>
+        <div class="trow"><span>الضريبة (<span id="taxPercentLabel">0</span>%)</span><span class="val" id="taxAmount">0 د.ع</span></div>
+        <div class="trow grand"><span>الإجمالي</span><span class="val" id="grandTotal">0 د.ع</span></div>
+      </div>
+
+      <div class="pay-method">
+        <span>طريقة الدفع</span>
+        <div class="method-toggle" id="methodToggle">
+          <button class="active" data-method="cash" type="button">نقد</button>
+          <button data-method="card" type="button">بطاقة</button>
+        </div>
+      </div>
+
+      <div class="ticket-actions">
+        <button class="btn-clear" id="btnClear" type="button">تفريغ</button>
+        <button class="btn-pay" id="btnPay" type="button">الدفع</button>
+      </div>
+
+      <p class="ticket-footer">نظام كاشير • جميع الأسعار بالدينار العراقي</p>
+    </aside>
+  </div>
+</div>
+
+<!-- ==== نافذة إضافة منتج ==== -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <h3 id="modalTitle">إضافة منتج جديد</h3>
+    <p class="modal-sub">الأسعار بالدينار العراقي (د.ع)</p>
+
+    <div id="fieldsRetail">
+      <label>اسم المنتج</label>
+      <input type="text" id="fName" placeholder="مثال: عصير تفاح">
+      <label>السعر (د.ع)</label>
+      <input type="number" id="fPrice" step="1" min="0" placeholder="مثال: 1500">
+      <label>الباركود (اختياري)</label>
+      <input type="text" id="fBarcode" inputmode="numeric" placeholder="سيتم توليده تلقائياً">
+    </div>
+
+    <div id="fieldsRestaurant" style="display:none">
+      <label>اسم الصنف</label>
+      <input type="text" id="fNameR" placeholder="مثال: بيتزا صغيرة">
+      <label>السعر (د.ع)</label>
+      <input type="number" id="fPriceR" step="1" min="0" placeholder="مثال: 5000">
+      <label>التصنيف</label>
+      <select id="fCat"></select>
+      <input type="text" id="fCatCustom" placeholder="أو اكتب تصنيفاً جديداً" style="margin-top:8px">
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-clear" id="modalCancel" type="button">إلغاء</button>
+      <button class="btn-pay" id="modalSave" type="button">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==== نافذة إدارة المنتجات (حذف + استيراد إكسل) ==== -->
+<div class="modal-overlay" id="manageOverlay">
+  <div class="modal-box wide">
+    <h3 id="manageTitle">إدارة المنتجات</h3>
+    <p class="modal-sub">احذف منتجاً أو استورد قائمة كاملة من ملف إكسل</p>
+
+    <div class="manage-toolbar">
+      <button id="btnImportExcel" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4M6 10l6-6 6 6"/><path d="M4 20h16"/></svg>
+        استيراد من إكسل
+      </button>
+      <button id="btnTemplateExcel" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v12M6 12l6 6 6-6"/><path d="M4 20h16"/></svg>
+        تنزيل نموذج
+      </button>
+    </div>
+    <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" style="display:none">
+    <p class="manage-hint" id="manageHint">ترتيب الأعمدة: الباركود — اسم المنتج — السعر (اترك الباركود فارغاً ليُولَّد تلقائياً)</p>
+
+    <div class="manage-list" id="manageList"></div>
+
+    <div class="modal-actions">
+      <button class="btn-clear" id="manageClose" type="button" style="flex:1">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==== نافذة الإعدادات ==== -->
+<div class="modal-overlay" id="settingsOverlay">
+  <div class="modal-box">
+    <h3>إعدادات النظام</h3>
+    <p class="modal-sub">تظهر هذه البيانات في رأس الفاتورة</p>
+
+    <label>اسم المتجر / المطعم</label>
+    <input type="text" id="setStoreName" placeholder="مثال: بقالة الرافدين">
+    <label>اسم الكاشير</label>
+    <input type="text" id="setCashierName" placeholder="مثال: أحمد">
+    <label>نسبة الضريبة (%)</label>
+    <input type="number" id="setTaxPercent" min="0" step="0.5" placeholder="0">
+
+    <div class="modal-actions">
+      <button class="btn-clear" id="settingsCancel" type="button">إلغاء</button>
+      <button class="btn-pay" id="settingsSave" type="button">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+  // ===== بيانات (أسعار بالدينار العراقي) =====
+  const products = {
+    "6291001100019": { name: "ماء معدني 600مل", price: 250 },
+    "6291001100026": { name: "عصير برتقال 1ل",   price: 1500 },
+    "6291001100033": { name: "خبز توست",          price: 1000 },
+    "6291001100040": { name: "شيبس 45غ",          price: 750 },
+    "6291001100057": { name: "شوكولاتة",           price: 1000 },
+    "6291001100064": { name: "حليب 1ل",            price: 1500 },
+  };
+  const menu = {
+    "مقبلات":  [ {name:"حمص", price:2000}, {name:"متبل", price:2000}, {name:"سلطة فتوش", price:2500}, {name:"بطاطا مقلية", price:2000} ],
+    "أطباق رئيسية": [ {name:"مشاوي مشكلة", price:12000}, {name:"دجاج مشوي", price:9000}, {name:"كبسة لحم", price:10000}, {name:"برجر لحم", price:6000} ],
+    "مشروبات": [ {name:"عصير طازج", price:1500}, {name:"شاي", price:500}, {name:"قهوة عربية", price:1000}, {name:"مياه غازية", price:500} ],
+    "حلويات":  [ {name:"كنافة", price:2500}, {name:"بقلاوة", price:2000}, {name:"أم علي", price:2500} ],
+  };
+
+  let cart = [];
+  let payments = [];
+  let mode = "retail";
+  let nextCustomCode = 9000000000001;
+  let invoiceCounter = 1001;
+  let currentPayMethod = "cash";
+  let settings = { storeName: "بقالة الرافدين", cashierName: "", taxPercent: 0 };
+
+  function formatIQD(n){ return Math.round(n).toLocaleString('en-US') + ' د.ع'; }
+
+  // ===== عناصر =====
+  const modeSwitch = document.getElementById('modeSwitch');
+  const btnRetail = document.getElementById('btnRetail');
+  const btnRestaurant = document.getElementById('btnRestaurant');
+  const retailPanel = document.getElementById('retailPanel');
+  const restaurantPanel = document.getElementById('restaurantPanel');
+  const modeCaption = document.getElementById('modeCaption');
+  const ticketModeLabel = document.getElementById('ticketModeLabel');
+  const barcodeInput = document.getElementById('barcodeInput');
+  const scanZone = document.getElementById('scanZone');
+  const chipsContainer = document.getElementById('chipsContainer');
+  const ticketItemsEl = document.getElementById('ticketItems');
+  const ticketEmpty = document.getElementById('ticketEmpty');
+  const totalCountEl = document.getElementById('totalCount');
+  const subTotalEl = document.getElementById('subTotal');
+  const taxPercentLabel = document.getElementById('taxPercentLabel');
+  const taxAmountEl = document.getElementById('taxAmount');
+  const grandTotalEl = document.getElementById('grandTotal');
+  const toast = document.getElementById('toast');
+  const catTabs = document.getElementById('catTabs');
+  const itemGrid = document.getElementById('itemGrid');
+  const paymentsList = document.getElementById('paymentsList');
+  const paymentsEmpty = document.getElementById('paymentsEmpty');
+  const statCount = document.getElementById('statCount');
+  const statSum = document.getElementById('statSum');
+  const statsBar = document.getElementById('statsBar');
+  const statsDetail = document.getElementById('statsDetail');
+  const modalOverlay = document.getElementById('modalOverlay');
+  const fieldsRetail = document.getElementById('fieldsRetail');
+  const fieldsRestaurant = document.getElementById('fieldsRestaurant');
+  const fCat = document.getElementById('fCat');
+  const settingsOverlay = document.getElementById('settingsOverlay');
+  const methodToggle = document.getElementById('methodToggle');
+  const manageOverlay = document.getElementById('manageOverlay');
+  const manageList = document.getElementById('manageList');
+  const manageHint = document.getElementById('manageHint');
+
+  // ===== تبديل الوضع =====
+  function setMode(newMode){
+    mode = newMode;
+    document.body.classList.toggle('restaurant', mode === 'restaurant');
+    modeSwitch.classList.toggle('mode-restaurant', mode === 'restaurant');
+    btnRetail.classList.toggle('active', mode === 'retail');
+    btnRestaurant.classList.toggle('active', mode === 'restaurant');
+    retailPanel.style.display = mode === 'retail' ? 'block' : 'none';
+    restaurantPanel.style.display = mode === 'restaurant' ? 'block' : 'none';
+    modeCaption.textContent = mode === 'retail' ? 'وضع البيع بالباركود — للمحلات' : 'وضع الاختيار السريع — للمطاعم';
+    ticketModeLabel.textContent = mode === 'retail' ? 'باركود' : 'مطعم';
+    ticketModeLabel.classList.toggle('restaurant', mode === 'restaurant');
+    if(mode === 'retail'){ setTimeout(()=>barcodeInput.focus(), 250); }
+  }
+  btnRetail.addEventListener('click', ()=> setMode('retail'));
+  btnRestaurant.addEventListener('click', ()=> setMode('restaurant'));
+
+  // ===== شرائح المنتجات (باركود) =====
+  function renderChips(){
+    chipsContainer.innerHTML = '';
+    const codes = Object.keys(products);
+    if(codes.length === 0){
+      chipsContainer.innerHTML = '<p class="empty-note" style="width:100%">لا توجد منتجات — أضف منتجاً أو استورد ملف إكسل</p>';
+      return;
+    }
+    codes.forEach(code=>{
+      const p = products[code];
+      const chip = document.createElement('button');
+      chip.className = 'chip'; chip.type = 'button';
+      chip.innerHTML = `${code}<b>${p.name} — ${formatIQD(p.price)}</b>`;
+      chip.addEventListener('click', ()=> lookupBarcode(code));
+      chipsContainer.appendChild(chip);
+    });
+  }
+
+  // ===== قائمة المطعم =====
+  let activeCat = Object.keys(menu)[0];
+  function renderCats(){
+    catTabs.innerHTML = '';
+    Object.keys(menu).forEach(cat=>{
+      const b = document.createElement('button');
+      b.textContent = cat; b.type = 'button';
+      if(cat === activeCat) b.classList.add('active');
+      b.addEventListener('click', ()=>{ activeCat = cat; renderCats(); renderItems(); });
+      catTabs.appendChild(b);
+    });
+  }
+  function renderItems(){
+    itemGrid.innerHTML = '';
+    const list = menu[activeCat] || [];
+    if(list.length === 0){
+      itemGrid.innerHTML = '<p class="empty-note">لا توجد أصناف في هذا التصنيف</p>';
+      return;
+    }
+    list.forEach(it=>{
+      const card = document.createElement('div');
+      card.className = 'item-card';
+      card.innerHTML = `<div class="name">${it.name}</div><div class="price">${formatIQD(it.price)}</div>`;
+      card.addEventListener('click', ()=> addToCart(it.name, it.price));
+      itemGrid.appendChild(card);
+    });
+  }
+  renderChips(); renderCats(); renderItems();
+
+  // ===== الباركود: دخول فوري بدون Enter =====
+  barcodeInput.addEventListener('input', ()=>{
+    const code = barcodeInput.value.trim();
+    if(products[code]){ lookupBarcode(code); barcodeInput.value = ''; }
+  });
+  barcodeInput.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter'){
+      const code = barcodeInput.value.trim();
+      if(code) lookupBarcode(code);
+      barcodeInput.value = '';
+    }
+  });
+  function lookupBarcode(code){
+    const p = products[code];
+    if(p){
+      addToCart(p.name, p.price);
+      scanZone.classList.remove('error'); scanZone.classList.add('flash');
+      setTimeout(()=> scanZone.classList.remove('flash'), 500);
+    } else {
+      scanZone.classList.remove('flash'); scanZone.classList.add('error');
+      showToast('باركود غير معروف: ' + code);
+      setTimeout(()=> scanZone.classList.remove('error'), 450);
+    }
+  }
+
+  // ===== السلة =====
+  function addToCart(name, price){
+    const existing = cart.find(i => i.name === name);
+    if(existing){ existing.qty += 1; } else { cart.push({name, price, qty:1}); }
+    renderCart();
+    if(mode === 'restaurant') showToast(name + ' أُضيف للطلب');
+  }
+  function removeFromCart(idx){ cart.splice(idx,1); renderCart(); }
+  function renderCart(){
+    ticketItemsEl.innerHTML = '';
+    if(cart.length === 0){
+      ticketEmpty.style.display = 'block';
+      ticketItemsEl.appendChild(ticketEmpty);
+    } else {
+      ticketEmpty.style.display = 'none';
+      cart.forEach((item, idx)=>{
+        const row = document.createElement('div');
+        row.className = 't-item';
+        row.innerHTML = `<span class="qty">${item.qty}×</span><span class="nm">${item.name}</span><span class="pr">${formatIQD(item.price*item.qty)}</span><button class="rm" title="إزالة">✕</button>`;
+        row.querySelector('.rm').addEventListener('click', ()=> removeFromCart(idx));
+        ticketItemsEl.appendChild(row);
+      });
+    }
+    const count = cart.reduce((s,i)=>s+i.qty,0);
+    const subtotal = cart.reduce((s,i)=>s+i.qty*i.price,0);
+    const taxAmt = subtotal * (settings.taxPercent/100);
+    const grand = subtotal + taxAmt;
+    totalCountEl.textContent = count;
+    subTotalEl.textContent = formatIQD(subtotal);
+    taxPercentLabel.textContent = settings.taxPercent;
+    taxAmountEl.textContent = formatIQD(taxAmt);
+    grandTotalEl.textContent = formatIQD(grand);
+  }
+
+  document.getElementById('btnClear').addEventListener('click', ()=>{ cart = []; renderCart(); });
+
+  methodToggle.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      methodToggle.querySelectorAll('button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      currentPayMethod = b.dataset.method;
+    });
+  });
+
+  document.getElementById('btnPay').addEventListener('click', ()=>{
+    if(cart.length === 0){ showToast('السلة فارغة'); return; }
+    const subtotal = cart.reduce((s,i)=>s+i.qty*i.price,0);
+    const grand = subtotal * (1 + settings.taxPercent/100);
+    payments.push({ invoice: invoiceCounter, amount: grand, method: currentPayMethod });
+    invoiceCounter++;
+    renderStats();
+    showToast('تم الدفع — الإجمالي ' + formatIQD(grand));
+    cart = []; renderCart();
+    updateLetterhead();
+  });
+
+  // ===== مربع المدفوعات المصغّر =====
+  function renderStats(){
+    paymentsList.innerHTML = '';
+    if(payments.length === 0){
+      paymentsEmpty.style.display = 'block';
+      paymentsList.appendChild(paymentsEmpty);
+    } else {
+      paymentsEmpty.style.display = 'none';
+      payments.forEach(p=>{
+        const chip = document.createElement('div');
+        chip.className = 'payment-chip';
+        chip.innerHTML = `<span class="inv">#${p.invoice} · ${p.method==='cash'?'نقد':'بطاقة'}</span><span>${formatIQD(p.amount)}</span>`;
+        paymentsList.appendChild(chip);
+      });
+    }
+    const count = payments.length;
+    const sum = payments.reduce((s,p)=>s+p.amount,0);
+    statCount.textContent = count;
+    statSum.textContent = formatIQD(sum);
+  }
+  document.getElementById('statsToggle').addEventListener('click', ()=>{
+    statsBar.classList.toggle('open');
+    statsDetail.classList.toggle('open');
+  });
+  document.getElementById('btnResetPayments').addEventListener('click', (e)=>{
+    e.stopPropagation();
+    payments = [];
+    invoiceCounter = 1001;
+    renderStats();
+    updateLetterhead();
+    showToast('تم تصفير عداد المدفوعات');
+  });
+
+  // ===== الفاتورة (رأسية احترافية) =====
+  function updateLetterhead(){
+    document.getElementById('lhStore').textContent = settings.storeName || 'متجري';
+    document.getElementById('lhCashier').textContent = 'الكاشير: ' + (settings.cashierName || '—');
+    const now = new Date();
+    document.getElementById('lhDate').textContent = now.toLocaleDateString('ar-IQ') + ' ' + now.toLocaleTimeString('ar-IQ', {hour:'2-digit', minute:'2-digit'});
+    document.getElementById('lhInvoice').textContent = '#' + invoiceCounter;
+  }
+  setInterval(updateLetterhead, 30000);
+
+  // ===== نافذة إضافة منتج =====
+  function openModal(){
+    if(mode === 'retail'){
+      fieldsRetail.style.display = 'block';
+      fieldsRestaurant.style.display = 'none';
+      document.getElementById('modalTitle').textContent = 'إضافة منتج جديد';
+      document.getElementById('fName').value = '';
+      document.getElementById('fPrice').value = '';
+      document.getElementById('fBarcode').value = '';
+    } else {
+      fieldsRetail.style.display = 'none';
+      fieldsRestaurant.style.display = 'block';
+      document.getElementById('modalTitle').textContent = 'إضافة صنف جديد';
+      document.getElementById('fNameR').value = '';
+      document.getElementById('fPriceR').value = '';
+      document.getElementById('fCatCustom').value = '';
+      fCat.innerHTML = '';
+      Object.keys(menu).forEach(cat=>{
+        const opt = document.createElement('option');
+        opt.value = cat; opt.textContent = cat;
+        if(cat === activeCat) opt.selected = true;
+        fCat.appendChild(opt);
+      });
+    }
+    modalOverlay.classList.add('show');
+  }
+  function closeModal(){ modalOverlay.classList.remove('show'); }
+  document.getElementById('btnOpenAddRetail').addEventListener('click', openModal);
+  document.getElementById('btnOpenAddRestaurant').addEventListener('click', openModal);
+  document.getElementById('modalCancel').addEventListener('click', closeModal);
+  modalOverlay.addEventListener('click', (e)=>{ if(e.target === modalOverlay) closeModal(); });
+
+  document.getElementById('modalSave').addEventListener('click', ()=>{
+    if(mode === 'retail'){
+      const name = document.getElementById('fName').value.trim();
+      const price = parseFloat(document.getElementById('fPrice').value);
+      let code = document.getElementById('fBarcode').value.trim();
+      if(!name || isNaN(price) || price < 0){ showToast('أدخل اسم المنتج والسعر بشكل صحيح'); return; }
+      if(!code){ code = String(nextCustomCode++); }
+      products[code] = { name, price };
+      renderChips();
+      showToast('تمت إضافة "' + name + '"');
+      closeModal();
+    } else {
+      const name = document.getElementById('fNameR').value.trim();
+      const price = parseFloat(document.getElementById('fPriceR').value);
+      const cat = document.getElementById('fCatCustom').value.trim() || fCat.value;
+      if(!name || isNaN(price) || price < 0 || !cat){ showToast('أدخل اسم الصنف والسعر والتصنيف'); return; }
+      if(!menu[cat]) menu[cat] = [];
+      menu[cat].push({ name, price });
+      activeCat = cat;
+      renderCats(); renderItems();
+      showToast('تمت إضافة "' + name + '"');
+      closeModal();
+    }
+  });
+
+  // ===== نافذة إدارة المنتجات (حذف + استيراد إكسل) =====
+  function openManageModal(){
+    document.getElementById('manageTitle').textContent = mode === 'retail' ? 'إدارة المنتجات' : 'إدارة الأصناف';
+    manageHint.textContent = mode === 'retail'
+      ? 'ترتيب الأعمدة عند الاستيراد: الباركود — اسم المنتج — السعر (اترك الباركود فارغاً ليُولَّد تلقائياً)'
+      : 'ترتيب الأعمدة عند الاستيراد: التصنيف — اسم الصنف — السعر';
+    renderManageList();
+    manageOverlay.classList.add('show');
+  }
+  function closeManageModal(){ manageOverlay.classList.remove('show'); }
+  document.getElementById('btnOpenManageRetail').addEventListener('click', openManageModal);
+  document.getElementById('btnOpenManageRestaurant').addEventListener('click', openManageModal);
+  document.getElementById('manageClose').addEventListener('click', closeManageModal);
+  manageOverlay.addEventListener('click', (e)=>{ if(e.target === manageOverlay) closeManageModal(); });
+
+  function renderManageList(){
+    manageList.innerHTML = '';
+    if(mode === 'retail'){
+      const codes = Object.keys(products);
+      if(codes.length === 0){ manageList.innerHTML = '<div class="payments-empty">لا توجد منتجات</div>'; return; }
+      codes.forEach(code=>{
+        const p = products[code];
+        const row = document.createElement('div');
+        row.className = 'manage-row';
+        row.innerHTML = `<span class="mr-code">${code}</span><span class="mr-name">${p.name}</span><span class="mr-price">${formatIQD(p.price)}</span><button class="mr-del" title="حذف">✕</button>`;
+        row.querySelector('.mr-del').addEventListener('click', ()=>{
+          delete products[code];
+          renderChips();
+          renderManageList();
+          showToast('تم حذف "' + p.name + '"');
+        });
+        manageList.appendChild(row);
+      });
+    } else {
+      let any = false;
+      Object.keys(menu).forEach(cat=>{
+        menu[cat].forEach((it, idx)=>{
+          any = true;
+          const row = document.createElement('div');
+          row.className = 'manage-row';
+          row.innerHTML = `<span class="mr-code">${cat}</span><span class="mr-name">${it.name}</span><span class="mr-price">${formatIQD(it.price)}</span><button class="mr-del" title="حذف">✕</button>`;
+          row.querySelector('.mr-del').addEventListener('click', ()=>{
+            menu[cat].splice(idx,1);
+            renderCats(); renderItems(); renderManageList();
+            showToast('تم حذف "' + it.name + '"');
+          });
+          manageList.appendChild(row);
+        });
+      });
+      if(!any) manageList.innerHTML = '<div class="payments-empty">لا توجد أصناف</div>';
+    }
+  }
+
+  // ===== استيراد من إكسل =====
+  document.getElementById('btnImportExcel').addEventListener('click', ()=> document.getElementById('excelFile').click());
+  document.getElementById('excelFile').addEventListener('change', (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev)=>{
+      try{
+        const data = new Uint8Array(ev.target.result);
+        const wb = XLSX.read(data, { type: 'array' });
+        const sheet = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, blankrows: false });
+        let count = 0;
+        for(let i = 1; i < rows.length; i++){
+          const row = rows[i];
+          if(!row || row.length === 0) continue;
+          if(mode === 'retail'){
+            const rawCode = row[0];
+            const code = (rawCode !== undefined && rawCode !== null && String(rawCode).trim() !== '') ? String(rawCode).trim() : String(nextCustomCode++);
+            const name = row[1] ? String(row[1]).trim() : '';
+            const price = parseFloat(row[2]);
+            if(!name || isNaN(price)) continue;
+            products[code] = { name, price };
+            count++;
+          } else {
+            const cat = row[0] ? String(row[0]).trim() : 'عام';
+            const name = row[1] ? String(row[1]).trim() : '';
+            const price = parseFloat(row[2]);
+            if(!name || isNaN(price)) continue;
+            if(!menu[cat]) menu[cat] = [];
+            menu[cat].push({ name, price });
+            count++;
+          }
+        }
+        if(mode === 'retail'){ renderChips(); } else { renderCats(); renderItems(); }
+        renderManageList();
+        showToast(count > 0 ? ('تم استيراد ' + count + ' منتج بنجاح') : 'لم يتم العثور على بيانات صالحة في الملف');
+      }catch(err){
+        showToast('تعذّر قراءة الملف — تأكد أنه بصيغة Excel أو CSV صحيحة');
+      }
+      e.target.value = '';
+    };
+    reader.readAsArrayBuffer(file);
+  });
+
+  document.getElementById('btnTemplateExcel').addEventListener('click', ()=>{
+    let aoa;
+    if(mode === 'retail'){
+      aoa = [ ['الباركود', 'اسم المنتج', 'السعر'], ['6291001100071', 'مثال منتج', 1500] ];
+    } else {
+      aoa = [ ['التصنيف', 'اسم الصنف', 'السعر'], ['مشروبات', 'مثال صنف', 1000] ];
+    }
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'المنتجات');
+    XLSX.writeFile(wb, mode === 'retail' ? 'نموذج_منتجات.xlsx' : 'نموذج_اصناف.xlsx');
+  });
+
+  // ===== نافذة الإعدادات =====
+  document.getElementById('btnSettings').addEventListener('click', ()=>{
+    document.getElementById('setStoreName').value = settings.storeName;
+    document.getElementById('setCashierName').value = settings.cashierName;
+    document.getElementById('setTaxPercent').value = settings.taxPercent;
+    settingsOverlay.classList.add('show');
+  });
+  document.getElementById('settingsCancel').addEventListener('click', ()=> settingsOverlay.classList.remove('show'));
+  settingsOverlay.addEventListener('click', (e)=>{ if(e.target === settingsOverlay) settingsOverlay.classList.remove('show'); });
+  document.getElementById('settingsSave').addEventListener('click', ()=>{
+    settings.storeName = document.getElementById('setStoreName').value.trim() || 'متجري';
+    settings.cashierName = document.getElementById('setCashierName').value.trim();
+    const tax = parseFloat(document.getElementById('setTaxPercent').value);
+    settings.taxPercent = isNaN(tax) || tax < 0 ? 0 : tax;
+    settingsOverlay.classList.remove('show');
+    updateLetterhead();
+    renderCart();
+    showToast('تم حفظ الإعدادات');
+  });
+
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(()=> toast.classList.remove('show'), 2400);
+  }
+
+  // بدء التشغيل
+  renderCart();
+  renderStats();
+  updateLetterhead();
+  setMode('retail');
+</script>
+</body>
+</html>
