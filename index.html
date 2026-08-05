@@ -15,26 +15,26 @@
 
 body{
 margin:0;
-font-family:Tahoma,Arial;
+font-family:Tahoma,Arial,sans-serif;
 background:#eef2f7;
-color:#17212b;
+color:#17212b
 }
 
 header{
 background:#123b68;
 color:#fff;
 text-align:center;
-padding:24px 14px;
+padding:24px 14px
 }
 
 header h1{
-margin:0 0 6px;
+margin:0 0 6px
 }
 
 .wrap{
 max-width:1100px;
 margin:auto;
-padding:14px;
+padding:14px
 }
 
 .card{
@@ -42,7 +42,13 @@ background:#fff;
 border-radius:18px;
 padding:18px;
 margin-bottom:14px;
-box-shadow:0 4px 18px #0001;
+box-shadow:0 4px 18px #0001
+}
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:14px
 }
 
 input,button{
@@ -51,68 +57,62 @@ padding:13px 14px;
 margin:5px 0;
 border-radius:11px;
 font:16px Tahoma;
-min-height:48px;
+min-height:48px
 }
 
 input{
-border:1px solid #ccd4de;
+border:1px solid #ccd4de
 }
 
 button{
 border:0;
 background:#123b68;
 color:#fff;
-cursor:pointer;
+cursor:pointer
 }
 
 button:hover{
-opacity:.92;
+opacity:.92
 }
 
 .green{
-background:#16834b;
+background:#16834b
 }
 
 .red{
-background:#c93636;
+background:#c93636
 }
 
 .gray{
-background:#687789;
+background:#687789
 }
 
 .hidden{
-display:none!important;
-}
-
-.grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:14px;
+display:none!important
 }
 
 .tabs{
 display:flex;
-gap:8px;
+gap:8px
 }
 
 .tabs button{
-flex:1;
+flex:1
 }
 
 .active{
-background:#16834b;
+background:#16834b
 }
 
 .topbar{
 display:flex;
 align-items:center;
 justify-content:space-between;
-gap:10px;
+gap:10px
 }
 
 .topbar button{
-width:auto;
+width:auto
 }
 
 .bank-card{
@@ -124,7 +124,7 @@ border-radius:20px;
 background:linear-gradient(135deg,#102d50,#17639b);
 color:#fff;
 position:relative;
-box-shadow:0 10px 25px #0003;
+box-shadow:0 10px 25px #0003
 }
 
 .chip{
@@ -132,7 +132,7 @@ width:45px;
 height:32px;
 background:#d8bf73;
 border-radius:7px;
-margin:24px 0;
+margin:24px 0
 }
 
 .number{
@@ -140,54 +140,51 @@ text-align:center;
 direction:ltr;
 font-size:21px;
 letter-spacing:2px;
-margin:20px 0;
+margin:20px 0
 }
 
 .label{
 font-size:10px;
-opacity:.75;
+opacity:.75
 }
 
 .name{
-font-size:16px;
-white-space:nowrap;
-overflow:hidden;
-text-overflow:ellipsis;
+font-size:16px
 }
 
 .qrbtn{
 position:absolute;
 top:12px;
 left:12px;
-width:auto;
+width:auto
 }
 
 .balance{
 font-size:30px;
 font-weight:bold;
-color:#123b68;
+color:#123b68
 }
 
 .note{
 font-size:13px;
 color:#697586;
-line-height:1.6;
+line-height:1.6
 }
 
 .table-wrap{
-overflow:auto;
+overflow:auto
 }
 
 table{
 width:100%;
 border-collapse:collapse;
-min-width:560px;
+min-width:560px
 }
 
 th,td{
 padding:10px;
 border-bottom:1px solid #e5e9ee;
-text-align:center;
+text-align:center
 }
 
 .modal{
@@ -198,7 +195,7 @@ display:flex;
 align-items:center;
 justify-content:center;
 padding:12px;
-z-index:10;
+z-index:10
 }
 
 .modalbox{
@@ -207,18 +204,18 @@ width:min(470px,100%);
 max-height:92vh;
 overflow:auto;
 border-radius:18px;
-padding:18px;
+padding:18px
 }
 
 #qrcode{
 display:flex;
 justify-content:center;
-margin:18px;
+margin:18px
 }
 
 #reader{
 width:100%;
-margin-top:10px;
+margin-top:10px
 }
 
 .toast{
@@ -234,43 +231,30 @@ padding:14px;
 border-radius:12px;
 text-align:center;
 display:none;
-z-index:20;
-}
-
-.login-title{
-text-align:center;
-margin-bottom:15px;
-}
-
-.admin-box{
-border-top:1px solid #ddd;
-margin-top:15px;
-padding-top:15px;
+z-index:20
 }
 
 @media(max-width:700px){
-
 .grid{
-grid-template-columns:1fr;
+grid-template-columns:1fr
 }
 
 .wrap{
-padding:9px;
+padding:9px
 }
 
 .card{
-padding:14px;
+padding:14px
 }
 
 .number{
 font-size:17px;
-letter-spacing:1px;
+letter-spacing:1px
 }
 
 .tabs{
-flex-direction:column;
+flex-direction:column
 }
-
 }
 </style>
 </head>
@@ -279,18 +263,18 @@ flex-direction:column;
 
 <header>
 <h1>💳 نظام بطاقات الدينار العراقي</h1>
-<div>Firebase • بطاقات وتحويل الرصيد</div>
+<div>نظام البطاقات والتحويل</div>
 </header>
 
 <div class="wrap">
 
-<!-- ========================= -->
+<!-- ===================== -->
 <!-- تسجيل الدخول -->
-<!-- ========================= -->
+<!-- ===================== -->
 
 <section id="auth" class="card">
 
-<h2 class="login-title">
+<h2 style="text-align:center">
 تسجيل الدخول
 </h2>
 
@@ -316,11 +300,11 @@ onclick="showAdminLogin()">
 </div>
 
 
-<!-- دخول المستخدم -->
+<!-- المستخدم -->
 
 <div id="userLoginBox">
 
-<h3>👤 حساب المستخدم</h3>
+<h3>👤 دخول المستخدم</h3>
 
 <input
 id="loginCard"
@@ -336,18 +320,22 @@ placeholder="كلمة المرور">
 class="green"
 onclick="loginUser()">
 
-دخول المستخدم
+دخول
 
 </button>
+
+<p class="note">
+أدخل رقم البطاقة وكلمة المرور التي حددها الأدمن.
+</p>
 
 </div>
 
 
-<!-- دخول الأدمن -->
+<!-- الأدمن -->
 
 <div id="adminLoginBox" class="hidden">
 
-<h3>🛡️ حساب الأدمن</h3>
+<h3>🛡️ دخول الأدمن</h3>
 
 <input
 id="adminEmail"
@@ -357,10 +345,9 @@ placeholder="البريد الإلكتروني للأدمن">
 <input
 id="adminPass"
 type="password"
-placeholder="كلمة مرور الأدمن">
+placeholder="كلمة المرور">
 
-<button
-onclick="loginAdmin()">
+<button onclick="loginAdmin()">
 
 دخول الأدمن
 
@@ -368,69 +355,23 @@ onclick="loginAdmin()">
 
 </div>
 
-
-<!-- إنشاء حساب -->
-
-<div class="admin-box">
-
-<h3>
-📝 إنشاء حساب مستخدم
-</h3>
-
-<input
-id="regName"
-placeholder="الاسم">
-
-<input
-id="regCard"
-inputmode="numeric"
-placeholder="رقم البطاقة">
-
-<input
-id="regPass"
-type="password"
-placeholder="كلمة المرور التي حددها الأدمن">
-
-<button
-class="green"
-onclick="register()">
-
-إنشاء الحساب
-
-</button>
-
-<p class="note">
-
-يجب أن يكون رقم البطاقة مضافًا من الأدمن،
-ويجب إدخال كلمة المرور التي حددها الأدمن.
-
-</p>
-
-</div>
-
 </section>
 
 
-<!-- ========================= -->
+<!-- ===================== -->
 <!-- لوحة الأدمن -->
-<!-- ========================= -->
+<!-- ===================== -->
 
-<section
-id="adminPanel"
-class="hidden">
+<section id="adminPanel" class="hidden">
 
 <div class="card topbar">
 
 <div>
-
 <b>🛡️ لوحة الأدمن</b>
-
 <br>
-
 <span class="note">
-الأدمن وحده يتحكم بالأرصدة والبطاقات.
+الأدمن يتحكم بالبطاقات والأرصدة.
 </span>
-
 </div>
 
 <button
@@ -446,13 +387,9 @@ onclick="logout()">
 
 <div class="grid">
 
-<!-- إضافة بطاقة -->
-
 <section class="card">
 
-<h2>
-💳 إضافة بطاقة
-</h2>
+<h2>💳 إضافة بطاقة</h2>
 
 <input
 id="aNo"
@@ -462,7 +399,7 @@ placeholder="رقم البطاقة">
 <input
 id="aPass"
 type="password"
-placeholder="كلمة المرور الأولية">
+placeholder="كلمة مرور البطاقة">
 
 <input
 id="aBal"
@@ -478,16 +415,16 @@ onclick="addCard()">
 
 </button>
 
+<p class="note">
+الأدمن هو الذي يحدد كلمة مرور البطاقة.
+</p>
+
 </section>
 
 
-<!-- تعديل الرصيد -->
-
 <section class="card">
 
-<h2>
-💰 تعديل الرصيد
-</h2>
+<h2>💰 تعديل الرصيد</h2>
 
 <input
 id="bNo"
@@ -500,10 +437,9 @@ type="number"
 min="0"
 placeholder="المبلغ الجديد">
 
-<button
-onclick="setBalance()">
+<button onclick="setBalance()">
 
-تعيين الرصيد
+تعديل الرصيد
 
 </button>
 
@@ -512,32 +448,23 @@ onclick="setBalance()">
 </div>
 
 
-<!-- البطاقات -->
-
 <section class="card">
 
-<h2>
-📋 البطاقات
-</h2>
+<h2>📋 البطاقات</h2>
 
 <div class="table-wrap">
 
 <table>
 
 <thead>
-
 <tr>
-<th>الرقم</th>
+<th>رقم البطاقة</th>
 <th>الرصيد</th>
 <th>المالك</th>
-<th>التسجيل</th>
 </tr>
-
 </thead>
 
-<tbody id="cardsTable">
-
-</tbody>
+<tbody id="cardsTable"></tbody>
 
 </table>
 
@@ -548,28 +475,19 @@ onclick="setBalance()">
 </section>
 
 
-<!-- ========================= -->
+<!-- ===================== -->
 <!-- لوحة المستخدم -->
-<!-- ========================= -->
+<!-- ===================== -->
 
-<section
-id="userPanel"
-class="hidden">
+<section id="userPanel" class="hidden">
 
 <div class="card topbar">
 
 <div>
-
 مرحباً
-
 <b id="userName"></b>
-
 <br>
-
-<span class="note">
-حساب المستخدم
-</span>
-
+<span class="note">حساب المستخدم</span>
 </div>
 
 <button
@@ -582,8 +500,6 @@ onclick="logout()">
 
 </div>
 
-
-<!-- البطاقة البنكية -->
 
 <div class="bank-card">
 
@@ -604,7 +520,6 @@ CARD NUMBER
 <div
 class="number"
 id="cardNo">
-
 </div>
 
 <div class="label">
@@ -614,19 +529,14 @@ CARD HOLDER
 <div
 class="name"
 id="cardName">
-
 </div>
 
 </div>
 
-
-<!-- الرصيد -->
 
 <section class="card">
 
-<h2>
-💰 الرصيد
-</h2>
+<h2>💰 الرصيد</h2>
 
 <div
 class="balance"
@@ -641,13 +551,9 @@ id="balance">
 
 <div class="grid">
 
-<!-- تحويل -->
-
 <section class="card">
 
-<h2>
-💸 تحويل
-</h2>
+<h2>💸 تحويل</h2>
 
 <button
 class="green"
@@ -660,18 +566,9 @@ onclick="openTransfer()">
 </section>
 
 
-<!-- تغيير كلمة المرور -->
-
 <section class="card">
 
-<h2>
-🔑 تغيير كلمة المرور
-</h2>
-
-<input
-id="oldPass"
-type="password"
-placeholder="كلمة المرور الحالية">
+<h2>🔑 تغيير كلمة المرور</h2>
 
 <input
 id="newPass"
@@ -690,34 +587,24 @@ onclick="changePassword()">
 </div>
 
 
-<!-- السجل -->
-
 <section class="card">
 
-<h2>
-📋 سجل التحويلات
-</h2>
+<h2>📋 سجل التحويلات</h2>
 
 <div class="table-wrap">
 
 <table>
 
 <thead>
-
 <tr>
-
 <th>التاريخ</th>
 <th>النوع</th>
 <th>البطاقة</th>
 <th>المبلغ</th>
-
 </tr>
-
 </thead>
 
-<tbody id="history">
-
-</tbody>
+<tbody id="history"></tbody>
 
 </table>
 
@@ -730,9 +617,9 @@ onclick="changePassword()">
 </div>
 
 
-<!-- ========================= -->
+<!-- ===================== -->
 <!-- نافذة التحويل -->
-<!-- ========================= -->
+<!-- ===================== -->
 
 <div
 id="modal"
@@ -742,9 +629,7 @@ class="modal hidden">
 
 <div class="topbar">
 
-<h2 id="modalTitle">
-تحويل
-</h2>
+<h2>تحويل</h2>
 
 <button
 class="gray"
@@ -757,15 +642,12 @@ onclick="closeModal()">
 </div>
 
 
-<!-- الخطوة الأولى -->
-
 <div id="step1">
 
 <input
 id="amount"
 type="number"
 min="1"
-step="1"
 placeholder="قيمة التحويل بالدينار العراقي">
 
 <button
@@ -779,16 +661,13 @@ onclick="nextStep()">
 </div>
 
 
-<!-- الخطوة الثانية -->
-
 <div
 id="step2"
 class="hidden">
 
-<button
-onclick="scanQR()">
+<button onclick="scanQR()">
 
-📷 قراءة QR للمستلم
+📷 قراءة QR
 
 </button>
 
@@ -810,8 +689,6 @@ onclick="transfer()">
 </div>
 
 
-<!-- QR -->
-
 <div
 id="myQR"
 class="hidden">
@@ -819,9 +696,7 @@ class="hidden">
 <div id="qrcode"></div>
 
 <p class="note">
-
-QR يحتوي رقم البطاقة فقط.
-
+وجّه كاميرا الطرف الآخر إلى هذا QR.
 </p>
 
 </div>
@@ -831,15 +706,8 @@ QR يحتوي رقم البطاقة فقط.
 </div>
 
 
-<div
-id="toast"
-class="toast">
-</div>
+<div id="toast" class="toast"></div>
 
-
-<!-- ========================= -->
-<!-- Firebase -->
-<!-- ========================= -->
 
 <script type="module">
 
@@ -849,20 +717,15 @@ initializeApp
 from
 "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
 
-
 import {
 getAuth,
-createUserWithEmailAndPassword,
 signInWithEmailAndPassword,
 signOut,
 onAuthStateChanged,
-updatePassword,
-reauthenticateWithCredential,
-EmailAuthProvider
+updatePassword
 }
 from
 "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
-
 
 import {
 getFirestore,
@@ -884,9 +747,7 @@ from
 "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
 
-/* ========================= */
-/* إعداد Firebase */
-/* ========================= */
+/* Firebase */
 
 const firebaseConfig = {
 
@@ -933,72 +794,39 @@ const ADMIN_UID =
 let me = null;
 let profile = null;
 let scanner = null;
-let stopCards = null;
 
 
-/* أدوات */
-
-const $ = id =>
-document.getElementById(id);
-
-
-const money = n =>
-Number(n || 0).toLocaleString("ar-IQ")
-+ " د.ع";
+const $ =
+id => document.getElementById(id);
 
 
 function toast(message){
 
-const t =
+const box =
 $("toast");
 
-t.textContent =
+box.textContent =
 message;
 
-t.style.display =
+box.style.display =
 "block";
 
-clearTimeout(
-window.toastTimer
-);
-
-window.toastTimer =
 setTimeout(
-() => {
-
-t.style.display =
-"none";
-
-},
-2800
+() => box.style.display="none",
+3000
 );
 
 }
 
 
-function escapeHtml(value){
+function money(value){
 
-return String(value ?? "")
-.replace(
-/[&<>"']/g,
-m => ({
-
-"&":"&amp;",
-"<":"&lt;",
-">":"&gt;",
-'"':"&quot;",
-"'":"&#039;"
-
-}[m])
-);
+return Number(value || 0)
+.toLocaleString("ar-IQ")
++ " د.ع";
 
 }
 
-
-/*
-رقم البطاقة يتحول إلى بريد داخلي
-للحسابات العادية فقط.
-*/
 
 function emailForCard(card){
 
@@ -1008,30 +836,9 @@ return card.replace(/\D/g,"")
 }
 
 
-/* SHA-256 */
-
-async function hash(value){
-
-const data =
-await crypto.subtle.digest(
-"SHA-256",
-new TextEncoder().encode(value)
-);
-
-return [...new Uint8Array(data)]
-.map(
-x =>
-x.toString(16)
-.padStart(2,"0")
-)
-.join("");
-
-}
-
-
-/* ========================= */
-/* واجهة تسجيل الدخول */
-/* ========================= */
+/* ===================== */
+/* تسجيل الدخول */
+/* ===================== */
 
 window.showUserLogin =
 function(){
@@ -1069,193 +876,7 @@ $("adminLoginTab")
 };
 
 
-/* ========================= */
-/* إنشاء حساب المستخدم */
-/* ========================= */
-
-window.register =
-async function(){
-
-try{
-
-const name =
-$("regName").value.trim();
-
-const card =
-$("regCard").value.trim();
-
-const password =
-$("regPass").value;
-
-
-if(!name || !card || !password){
-
-return toast(
-"أكمل جميع البيانات"
-);
-
-}
-
-
-if(
-!/^\d+$/.test(card)
-){
-
-return toast(
-"رقم البطاقة يجب أن يحتوي على أرقام فقط"
-);
-
-}
-
-
-if(password.length < 6){
-
-return toast(
-"كلمة المرور يجب أن تكون 6 أحرف على الأقل"
-);
-
-}
-
-
-const cardRef =
-doc(db,"cards",card);
-
-const cardSnap =
-await getDoc(cardRef);
-
-
-if(!cardSnap.exists()){
-
-return toast(
-"رقم البطاقة غير موجود"
-);
-
-}
-
-
-const cardData =
-cardSnap.data();
-
-
-if(cardData.ownerUid){
-
-return toast(
-"هذه البطاقة مرتبطة بحساب مسبقاً"
-);
-
-}
-
-
-if(cardData.registrationOpen !== true){
-
-return toast(
-"التسجيل مغلق لهذه البطاقة"
-);
-
-}
-
-
-const passwordHash =
-await hash(password);
-
-
-if(
-passwordHash !==
-cardData.setupPasswordHash
-){
-
-return toast(
-"كلمة المرور غير مطابقة للكلمة التي حددها الأدمن"
-);
-
-}
-
-
-/*
-إنشاء حساب Firebase
-*/
-
-const credential =
-await createUserWithEmailAndPassword(
-auth,
-emailForCard(card),
-password
-);
-
-
-/*
-حفظ بيانات المستخدم
-*/
-
-await setDoc(
-doc(db,"users",credential.user.uid),
-{
-name:name,
-card:card,
-createdAt:
-serverTimestamp()
-}
-);
-
-
-/*
-ربط البطاقة بالمستخدم
-*/
-
-await updateDoc(
-cardRef,
-{
-ownerUid:
-credential.user.uid,
-
-ownerName:
-name,
-
-registrationOpen:
-false
-}
-);
-
-
-$("regName").value = "";
-$("regCard").value = "";
-$("regPass").value = "";
-
-
-toast(
-"تم إنشاء الحساب بنجاح"
-);
-
-
-}catch(error){
-
-console.error(error);
-
-if(
-error.code ===
-"auth/email-already-in-use"
-){
-
-toast(
-"هذا الحساب موجود مسبقاً"
-);
-
-}else{
-
-toast(
-"تعذر إنشاء الحساب"
-);
-
-}
-
-}
-
-};
-
-
-/* ========================= */
 /* دخول المستخدم */
-/* ========================= */
 
 window.loginUser =
 async function(){
@@ -1298,9 +919,7 @@ toast(
 };
 
 
-/* ========================= */
 /* دخول الأدمن */
-/* ========================= */
 
 window.loginAdmin =
 async function(){
@@ -1317,13 +936,13 @@ $("adminPass").value;
 if(!email || !password){
 
 return toast(
-"أدخل البريد الإلكتروني وكلمة المرور"
+"أدخل البريد وكلمة المرور"
 );
 
 }
 
 
-const credential =
+const result =
 await signInWithEmailAndPassword(
 auth,
 email,
@@ -1331,14 +950,7 @@ password
 );
 
 
-/*
-نتأكد أن الحساب هو UID الأدمن
-*/
-
-if(
-credential.user.uid !==
-ADMIN_UID
-){
+if(result.user.uid !== ADMIN_UID){
 
 await signOut(auth);
 
@@ -1348,18 +960,12 @@ return toast(
 
 }
 
-
-toast(
-"تم دخول الأدمن"
-);
-
-
 }catch(error){
 
 console.error(error);
 
 toast(
-"البريد الإلكتروني أو كلمة المرور غير صحيحة"
+"بيانات الأدمن غير صحيحة"
 );
 
 }
@@ -1367,9 +973,7 @@ toast(
 };
 
 
-/* ========================= */
-/* تسجيل الخروج */
-/* ========================= */
+/* خروج */
 
 window.logout =
 function(){
@@ -1379,9 +983,9 @@ signOut(auth);
 };
 
 
-/* ========================= */
-/* مراقبة حالة الحساب */
-/* ========================= */
+/* ===================== */
+/* حالة الحساب */
+/* ===================== */
 
 onAuthStateChanged(
 auth,
@@ -1391,8 +995,6 @@ me = user;
 
 
 if(!user){
-
-profile = null;
 
 $("auth")
 .classList.remove("hidden");
@@ -1408,13 +1010,9 @@ return;
 }
 
 
-/*
-الأدمن
-*/
+/* الأدمن */
 
-if(
-user.uid === ADMIN_UID
-){
+if(user.uid === ADMIN_UID){
 
 $("auth")
 .classList.add("hidden");
@@ -1432,9 +1030,7 @@ return;
 }
 
 
-/*
-المستخدم
-*/
+/* المستخدم */
 
 const userSnap =
 await getDoc(
@@ -1446,11 +1042,9 @@ if(!userSnap.exists()){
 
 await signOut(auth);
 
-toast(
+return toast(
 "بيانات المستخدم غير موجودة"
 );
-
-return;
 
 }
 
@@ -1463,83 +1057,9 @@ showUser();
 });
 
 
-/* ========================= */
-/* تحميل البطاقات للأدمن */
-/* ========================= */
-
-function loadCards(){
-
-if(stopCards){
-
-stopCards();
-
-}
-
-
-stopCards =
-onSnapshot(
-collection(db,"cards"),
-snapshot => {
-
-$("cardsTable").innerHTML =
-snapshot.docs.map(
-item => {
-
-const c =
-item.data();
-
-return `
-<tr>
-
-<td>
-${escapeHtml(item.id)}
-</td>
-
-<td>
-${money(c.balance)}
-</td>
-
-<td>
-${escapeHtml(
-c.ownerName ||
-"غير مرتبطة"
-)}
-</td>
-
-<td>
-${
-c.registrationOpen
-?
-"مفتوح"
-:
-"مغلق"
-}
-
-</td>
-
-</tr>
-`;
-
-}
-).join("")
-||
-`
-<tr>
-<td colspan="4">
-لا توجد بطاقات
-</td>
-</tr>
-`;
-
-}
-);
-
-}
-
-
-/* ========================= */
+/* ===================== */
 /* إضافة بطاقة */
-/* ========================= */
+/* ===================== */
 
 window.addCard =
 async function(){
@@ -1558,69 +1078,88 @@ $("aBal").value || 0
 );
 
 
-if(
-!/^\d+$/.test(number) ||
-!password ||
-password.length < 6 ||
-balance < 0
-){
+if(!/^\d+$/.test(number)){
 
 return toast(
-"بيانات البطاقة غير صحيحة"
+"رقم البطاقة يجب أن يحتوي على أرقام فقط"
+);
+
+}
+
+if(number.length < 8){
+
+return toast(
+"رقم البطاقة قصير جداً"
+);
+
+}
+
+if(password.length < 6){
+
+return toast(
+"كلمة المرور يجب أن تكون 6 أحرف على الأقل"
+);
+
+}
+
+if(!Number.isFinite(balance) || balance < 0){
+
+return toast(
+"الرصيد غير صحيح"
 );
 
 }
 
 
-const ref =
-doc(db,"cards",number);
+/*
+هنا يتم استدعاء Cloud Function
+لإنشاء حساب البطاقة بدون تسجيل خروج الأدمن.
+*/
 
-const exists =
-await getDoc(ref);
-
-
-if(exists.exists()){
-
-return toast(
-"رقم البطاقة موجود مسبقاً"
-);
-
-}
-
-
-await setDoc(
-ref,
+const response =
+await fetch(
+"https://us-central1-newsite-c1c6a.cloudfunctions.net/addCard",
 {
 
-balance:
-balance,
+method:"POST",
 
-ownerUid:
-null,
+headers:{
+"Content-Type":"application/json"
+},
 
-ownerName:
-null,
+body:JSON.stringify({
 
-registrationOpen:
-true,
+cardNumber:number,
+password:password,
+balance:balance
 
-setupPasswordHash:
-await hash(password),
-
-createdAt:
-serverTimestamp()
+})
 
 }
 );
 
 
-$("aNo").value = "";
-$("aPass").value = "";
-$("aBal").value = "";
+const result =
+await response.json();
+
+
+if(!response.ok){
+
+throw new Error(
+result.error ||
+"ADD_CARD_FAILED"
+);
+
+}
+
+
+$("aNo").value="";
+$("aPass").value="";
+$("aBal").value="";
 
 
 toast(
-"تمت إضافة البطاقة"
+"تمت إضافة البطاقة بنجاح"
 );
 
 
@@ -1629,6 +1168,7 @@ toast(
 console.error(error);
 
 toast(
+error.message ||
 "تعذر إضافة البطاقة"
 );
 
@@ -1637,9 +1177,43 @@ toast(
 };
 
 
-/* ========================= */
+/* ===================== */
+/* قائمة البطاقات */
+/* ===================== */
+
+function loadCards(){
+
+onSnapshot(
+collection(db,"cards"),
+snapshot => {
+
+$("cardsTable").innerHTML =
+snapshot.docs.map(
+item => {
+
+const data =
+item.data();
+
+return `
+<tr>
+<td>${item.id}</td>
+<td>${money(data.balance)}</td>
+<td>${data.ownerName || "غير مرتبطة"}</td>
+</tr>
+`;
+
+}
+).join("");
+
+}
+);
+
+}
+
+
+/* ===================== */
 /* تعديل الرصيد */
-/* ========================= */
+/* ===================== */
 
 window.setBalance =
 async function(){
@@ -1655,6 +1229,23 @@ $("bBal").value
 );
 
 
+if(!number){
+
+return toast(
+"أدخل رقم البطاقة"
+);
+
+}
+
+if(!Number.isFinite(balance) || balance < 0){
+
+return toast(
+"الرصيد غير صحيح"
+);
+
+}
+
+
 const ref =
 doc(db,"cards",number);
 
@@ -1662,14 +1253,10 @@ const snap =
 await getDoc(ref);
 
 
-if(
-!snap.exists() ||
-!Number.isFinite(balance) ||
-balance < 0
-){
+if(!snap.exists()){
 
 return toast(
-"بيانات غير صحيحة"
+"البطاقة غير موجودة"
 );
 
 }
@@ -1678,21 +1265,18 @@ return toast(
 await updateDoc(
 ref,
 {
-balance:
-balance,
-
-updatedAt:
-serverTimestamp()
+balance:balance,
+updatedAt:serverTimestamp()
 }
 );
 
 
-$("bNo").value = "";
-$("bBal").value = "";
+$("bNo").value="";
+$("bBal").value="";
 
 
 toast(
-"تم تحديث الرصيد"
+"تم تعديل الرصيد"
 );
 
 
@@ -1701,7 +1285,7 @@ toast(
 console.error(error);
 
 toast(
-"تعذر تحديث الرصيد"
+"تعذر تعديل الرصيد"
 );
 
 }
@@ -1709,11 +1293,11 @@ toast(
 };
 
 
-/* ========================= */
-/* واجهة المستخدم */
-/* ========================= */
+/* ===================== */
+/* المستخدم */
+/* ===================== */
 
-function showUser(){
+async function showUser(){
 
 $("auth")
 .classList.add("hidden");
@@ -1740,19 +1324,11 @@ refreshUser();
 }
 
 
-/* ========================= */
-/* تحديث الرصيد */
-/* ========================= */
-
 async function refreshUser(){
 
 const snap =
 await getDoc(
-doc(
-db,
-"cards",
-profile.card
-)
+doc(db,"cards",profile.card)
 );
 
 
@@ -1765,15 +1341,14 @@ snap.data().balance
 
 }
 
-
 loadHistory();
 
 }
 
 
-/* ========================= */
+/* ===================== */
 /* سجل التحويلات */
-/* ========================= */
+/* ===================== */
 
 async function loadHistory(){
 
@@ -1782,18 +1357,15 @@ try{
 const q =
 query(
 collection(db,"transfers"),
-
 where(
 "participants",
 "array-contains",
 me.uid
 ),
-
 orderBy(
 "createdAt",
 "desc"
 ),
-
 limit(50)
 );
 
@@ -1809,7 +1381,7 @@ item => {
 const x =
 item.data();
 
-const sending =
+const sent =
 x.fromUid === me.uid;
 
 
@@ -1817,34 +1389,23 @@ return `
 <tr>
 
 <td>
-
 ${
 x.createdAt &&
 x.createdAt.toDate
 ?
-x.createdAt
-.toDate()
+x.createdAt.toDate()
 .toLocaleString("ar-IQ")
 :
 "—"
 }
-
 </td>
 
 <td>
-${sending
-? "إرسال"
-: "استلام"}
+${sent ? "إرسال" : "استلام"}
 </td>
 
 <td>
-
-${escapeHtml(
-sending
-? x.toCard
-: x.fromCard
-)}
-
+${sent ? x.toCard : x.fromCard}
 </td>
 
 <td>
@@ -1870,32 +1431,20 @@ ${money(x.amount)}
 
 console.error(error);
 
-$("history").innerHTML =
-`
-<tr>
-<td colspan="4">
-تعذر تحميل السجل
-</td>
-</tr>
-`;
-
 }
 
 }
 
 
-/* ========================= */
-/* فتح نافذة التحويل */
-/* ========================= */
+/* ===================== */
+/* التحويل */
+/* ===================== */
 
 window.openTransfer =
 function(){
 
 $("modal")
 .classList.remove("hidden");
-
-$("modalTitle").textContent =
-"تحويل رصيد";
 
 $("step1")
 .classList.remove("hidden");
@@ -1909,12 +1458,8 @@ $("myQR")
 };
 
 
-/* ========================= */
-/* التالي في التحويل */
-/* ========================= */
-
 window.nextStep =
-async function(){
+function(){
 
 const amount =
 Number(
@@ -1922,38 +1467,10 @@ $("amount").value
 );
 
 
-if(
-!Number.isInteger(amount) ||
-amount <= 0
-){
+if(!Number.isInteger(amount) || amount <= 0){
 
 return toast(
 "أدخل مبلغاً صحيحاً"
-);
-
-}
-
-
-const snap =
-await getDoc(
-doc(
-db,
-"cards",
-profile.card
-)
-);
-
-
-if(
-!snap.exists() ||
-amount >
-Number(
-snap.data().balance || 0
-)
-){
-
-return toast(
-"الرصيد غير كافٍ"
 );
 
 }
@@ -1967,10 +1484,6 @@ $("step2")
 
 };
 
-
-/* ========================= */
-/* تنفيذ التحويل */
-/* ========================= */
 
 window.transfer =
 async function(){
@@ -1986,22 +1499,15 @@ $("amount").value
 );
 
 
-if(
-!/^\d+$/.test(to) ||
-!Number.isInteger(amount) ||
-amount <= 0
-){
+if(!/^\d+$/.test(to)){
 
 return toast(
-"بيانات التحويل غير صحيحة"
+"رقم بطاقة المستلم غير صحيح"
 );
 
 }
 
-
-if(
-to === profile.card
-){
+if(to === profile.card){
 
 return toast(
 "لا يمكن التحويل لنفس البطاقة"
@@ -2009,28 +1515,23 @@ return toast(
 
 }
 
+if(!Number.isInteger(amount) || amount <= 0){
+
+return toast(
+"المبلغ غير صحيح"
+);
+
+}
+
 
 const fromRef =
-doc(
-db,
-"cards",
-profile.card
-);
+doc(db,"cards",profile.card);
 
 const toRef =
-doc(
-db,
-"cards",
-to
-);
+doc(db,"cards",to);
 
 const transferRef =
-doc(
-collection(
-db,
-"transfers"
-)
-);
+doc(collection(db,"transfers"));
 
 
 await runTransaction(
@@ -2038,24 +1539,21 @@ db,
 async transaction => {
 
 const fromSnap =
-await transaction.get(
-fromRef
-);
+await transaction.get(fromRef);
 
 const toSnap =
-await transaction.get(
-toRef
-);
+await transaction.get(toRef);
 
 
-if(
-!fromSnap.exists() ||
-!toSnap.exists()
-){
+if(!fromSnap.exists()){
 
-throw new Error(
-"NOT_FOUND"
-);
+throw new Error("FROM_NOT_FOUND");
+
+}
+
+if(!toSnap.exists()){
+
+throw new Error("TO_NOT_FOUND");
 
 }
 
@@ -2068,67 +1566,34 @@ toSnap.data();
 
 
 if(
-from.ownerUid !== me.uid
+Number(from.balance || 0)
+< amount
 ){
 
-throw new Error(
-"OWNER"
-);
+throw new Error("BALANCE");
 
 }
 
-
-if(
-amount >
-Number(
-from.balance || 0
-)
-){
-
-throw new Error(
-"BALANCE"
-);
-
-}
-
-
-/*
-خصم
-*/
 
 transaction.update(
 fromRef,
 {
 balance:
-Number(from.balance) -
-amount,
-
-updatedAt:
-serverTimestamp()
+Number(from.balance || 0)
+- amount
 }
 );
 
-
-/*
-إضافة
-*/
 
 transaction.update(
 toRef,
 {
 balance:
-Number(target.balance || 0) +
-amount,
-
-updatedAt:
-serverTimestamp()
+Number(target.balance || 0)
++ amount
 }
 );
 
-
-/*
-السجل
-*/
 
 transaction.set(
 transferRef,
@@ -2138,8 +1603,7 @@ fromUid:
 me.uid,
 
 toUid:
-target.ownerUid ||
-null,
+target.ownerUid || null,
 
 fromCard:
 profile.card,
@@ -2173,10 +1637,6 @@ serverTimestamp()
 
 closeModal();
 
-$("amount").value = "";
-$("toCard").value = "";
-
-
 toast(
 "تم التحويل بنجاح"
 );
@@ -2189,28 +1649,19 @@ refreshUser();
 
 console.error(error);
 
-
-if(
-error.message ===
-"BALANCE"
-){
+if(error.message === "BALANCE"){
 
 toast(
 "الرصيد غير كافٍ"
 );
 
-}
-else if(
-error.message ===
-"NOT_FOUND"
-){
+}else if(error.message === "TO_NOT_FOUND"){
 
 toast(
-"البطاقة غير موجودة"
+"بطاقة المستلم غير موجودة"
 );
 
-}
-else{
+}else{
 
 toast(
 "تعذر تنفيذ التحويل"
@@ -2223,18 +1674,15 @@ toast(
 };
 
 
-/* ========================= */
-/* QR الخاص بالمستخدم */
-/* ========================= */
+/* ===================== */
+/* QR */
+/* ===================== */
 
 window.showMyQR =
 function(){
 
 $("modal")
 .classList.remove("hidden");
-
-$("modalTitle").textContent =
-"QR الخاص ببطاقتي";
 
 $("step1")
 .classList.add("hidden");
@@ -2245,54 +1693,20 @@ $("step2")
 $("myQR")
 .classList.remove("hidden");
 
-$("qrcode").innerHTML = "";
+$("qrcode").innerHTML="";
 
 
 new QRCode(
 $("qrcode"),
 {
-
-text:
-profile.card,
-
+text:profile.card,
 width:220,
-
 height:220
-
 }
 );
 
 };
 
-
-/* ========================= */
-/* إغلاق النافذة */
-/* ========================= */
-
-window.closeModal =
-function(){
-
-if(scanner){
-
-scanner.stop()
-.catch(()=>{});
-
-scanner.clear()
-.catch(()=>{});
-
-scanner = null;
-
-}
-
-$("modal")
-.classList.add("hidden");
-
-};
-
-
-/* ========================= */
-/* قراءة QR */
-/* ========================= */
 
 window.scanQR =
 function(){
@@ -2302,125 +1716,111 @@ return;
 
 
 scanner =
-new Html5Qrcode(
-"reader"
-);
+new Html5Qrcode("reader");
 
 
 scanner.start(
-
 {facingMode:"environment"},
-
 {
 fps:10,
 qrbox:220
 },
-
 text => {
 
 $("toCard").value =
 text.trim();
 
 
+scanner.stop()
+.then(
+() => {
+scanner.clear();
+scanner=null;
+}
+)
+.catch(
+()=>{}
+);
+
+
+toast(
+"تمت قراءة البطاقة"
+);
+
+}
+)
+.catch(
+error => {
+
+console.error(error);
+
+scanner=null;
+
+toast(
+"تعذر تشغيل الكاميرا"
+);
+
+}
+);
+
+};
+
+
+/* ===================== */
+/* إغلاق */
+/* ===================== */
+
+window.closeModal =
+function(){
+
 if(scanner){
 
 scanner.stop()
 .catch(()=>{});
 
-scanner.clear()
-.catch(()=>{});
-
-scanner = null;
+scanner=null;
 
 }
 
-
-toast(
-"تمت قراءة رقم البطاقة"
-);
-
-}
-
-)
-.catch(error => {
-
-console.error(error);
-
-scanner = null;
-
-toast(
-"تعذر تشغيل الكاميرا. تأكد من السماح باستخدام الكاميرا."
-);
-
-});
+$("modal")
+.classList.add("hidden");
 
 };
 
 
-/* ========================= */
+/* ===================== */
 /* تغيير كلمة المرور */
-/* ========================= */
+/* ===================== */
 
 window.changePassword =
 async function(){
 
 try{
 
-const oldPassword =
-$("oldPass").value;
-
-const newPassword =
+const password =
 $("newPass").value;
 
 
-if(
-!oldPassword ||
-!newPassword
-){
+if(password.length < 6){
 
 return toast(
-"أدخل كلمة المرور الحالية والجديدة"
+"كلمة المرور يجب أن تكون 6 أحرف على الأقل"
 );
 
 }
-
-
-if(
-newPassword.length < 6
-){
-
-return toast(
-"كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل"
-);
-
-}
-
-
-const credential =
-EmailAuthProvider.credential(
-me.email,
-oldPassword
-);
-
-
-await reauthenticateWithCredential(
-me,
-credential
-);
 
 
 await updatePassword(
 me,
-newPassword
+password
 );
 
 
-$("oldPass").value = "";
-$("newPass").value = "";
+$("newPass").value="";
 
 
 toast(
-"تم تغيير كلمة المرور بنجاح"
+"تم تغيير كلمة المرور"
 );
 
 
@@ -2429,7 +1829,7 @@ toast(
 console.error(error);
 
 toast(
-"كلمة المرور الحالية غير صحيحة أو تعذر التغيير"
+"تعذر تغيير كلمة المرور. قد تحتاج إلى تسجيل الدخول من جديد."
 );
 
 }
