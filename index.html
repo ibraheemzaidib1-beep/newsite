@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#123b68"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><title>نظام بطاقات الدينار العراقي</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<style>
+*{box-sizing:border-box}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+body{margin:0;font-family:Tahoma,Arial,sans-serif;background:#eef2f7;color:#17212b;min-height:100vh}
+button,input{font-family:inherit;touch-action:manipulation}
+button{min-height:48px}
+input{min-height:48px}
+header{background:#123b68;color:#fff;padding:calc(18px + env(safe-area-inset-top)) 14px 18px;text-align:center}
+header h1{margin:0 0 6px;font-size:clamp(20px,5vw,30px)}
+.wrap{width:min(1150px,100%);margin:0 auto;padding:14px 14px calc(14px + env(safe-area-inset-bottom))}
+.card{background:#fff;border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 4px 18px #00000012}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+input,button{width:100%;padding:13px 14px;border-radius:11px;font-size:16px}
+input{border:1px solid #cdd5df;margin:5px 0 9px;outline:none}
+input:focus{border-color:#123b68;box-shadow:0 0 0 3px #123b6815}
+button{border:0;background:#123b68;color:#fff;margin:4px 0;cursor:pointer}
+button:active{transform:scale(.99)}
+button:hover{opacity:.94}
+.green{background:#16834b}.red{background:#c93636}.gray{background:#687789}
+.hidden{display:none!important}
+.balance{font-size:clamp(24px,7vw,32px);font-weight:bold;color:#123b68;word-break:break-word}
+.stat{background:#eef4fa;padding:13px;border-radius:11px;margin:7px 0;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.note{font-size:13px;color:#697586;line-height:1.6}
+.danger{color:#c93636}
+table{width:100%;border-collapse:collapse;min-width:560px}
+th,td{padding:10px;border-bottom:1px solid #e5e9ee;text-align:center;white-space:nowrap}
+th{background:#eef4fa}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.topbar button{width:auto;min-width:90px}
+.bank-card{width:min(100%,430px);min-height:230px;margin:10px auto 18px;padding:22px;border-radius:20px;background:linear-gradient(135deg,#102d50,#17639b);color:white;box-shadow:0 10px 25px #0003;position:relative;overflow:hidden}
+.bank-card .chip{width:45px;height:32px;border-radius:7px;background:#d8bf73;margin:25px 0}
+.bank-card .number{font-size:clamp(17px,5vw,23px);letter-spacing:2px;direction:ltr;text-align:center;margin:20px 0;white-space:nowrap}
+.bank-card .label{font-size:10px;opacity:.75}
+.bank-card .name{font-size:16px;margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qrbtn{position:absolute;top:14px;left:14px;width:auto!important;min-width:62px!important;padding:8px 12px!important;min-height:40px!important}
+.tabs{display:flex;gap:8px}.tabs button{flex:1}.active{background:#16834b}
+.modal{position:fixed;inset:0;background:#0008;display:flex;align-items:center;justify-content:center;padding:12px;z-index:10}
+.modalbox{background:#fff;width:min(470px,100%);max-height:92vh;overflow:auto;border-radius:18px;padding:18px}
+#qrcode{display:flex;justify-content:center;margin:18px auto}
+.close{background:#687789;width:auto!important;min-width:80px!important}
+#reader{width:100%;margin-top:10px}
+.toast{position:fixed;bottom:calc(15px + env(safe-area-inset-bottom));left:15px;right:15px;max-width:420px;margin:auto;background:#17212b;color:#fff;padding:13px 16px;border-radius:11px;display:none;z-index:20;text-align:center}
+hr{border:0;border-top:1px solid #e4e7eb;margin:15px 0}
+@media(max-width:700px){
+  .wrap{padding:10px}
+  .card{padding:15px;border-radius:15px}
+  .grid{grid-template-columns:1fr}
+  .topbar{align-items:center}
+  .topbar>div{min-width:0}
+  .bank-card{min-height:210px;padding:20px}
+  .bank-card .chip{margin:20px 0}
+  .tabs button{font-size:14px}
+}
+@media(max-width:430px){
+  header{padding:15px 10px}
+  .wrap{padding:8px}
+  .card{padding:13px}
+  .topbar{gap:8px}
+  .topbar button{min-width:75px;padding:10px}
+  .bank-card{min-height:195px;border-radius:17px}
+  .bank-card .number{letter-spacing:1px;font-size:16px}
+  .bank-card .chip{width:40px;height:28px;margin:17px 0}
+  input,button{font-size:16px}
+}
+@media(orientation:landscape) and (max-height:600px){
+  header{padding:10px}
+  .wrap{padding:8px}
+  .bank-card{min-height:180px}
+  .bank-card .chip{margin:12px 0}
+  .modalbox{max-height:96vh}
+}
+</style>
+</head>
+<body>
+<header><h1>💳 نظام بطاقات الدينار العراقي</h1><div>إدارة البطاقات وتحويل الرصيد</div></header>
+
+<div class="wrap">
+
+<section id="auth" class="card">
+  <div class="tabs">
+    <button id="loginTab" class="active" onclick="authMode('login')">تسجيل الدخول</button>
+    <button id="registerTab" onclick="authMode('register')">إنشاء حساب</button>
+  </div>
+
+  <div id="loginBox">
+    <input id="loginUser" placeholder="اسم المستخدم">
+    <input id="loginPass" type="password" placeholder="كلمة المرور">
+    <button onclick="login()">دخول</button>
+    <p class="note">حساب الأدمن التجريبي: admin / Admin123</p>
+  </div>
+
+  <div id="registerBox" class="hidden">
+    <input id="regName" placeholder="الاسم">
+    <input id="regCard" placeholder="رقم البطاقة التي أدخلها الأدمن">
+    <input id="regPass" type="password" placeholder="كلمة المرور التي حددها الأدمن">
+    <input id="regUser" placeholder="اسم المستخدم">
+    <button class="green" onclick="register()">إنشاء الحساب</button>
+    <p class="note">لا يمكن إنشاء حساب إلا إذا كان رقم البطاقة موجودًا لدى الأدمن وكلمة المرور مطابقة.</p>
+  </div>
+</section>
+
+<section id="adminPanel" class="hidden">
+  <div class="card topbar">
+    <div><strong>🛡️ لوحة الأدمن</strong><br><span class="note">الأدمن فقط يتحكم بأرصدة البطاقات.</span></div>
+    <button class="gray" style="width:auto" onclick="logout()">خروج</button>
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <h2>💳 إضافة بطاقة</h2>
+      <input id="adminCardNo" placeholder="رقم البطاقة">
+      <input id="adminCardPass" type="password" placeholder="كلمة المرور التي سيستخدمها صاحب البطاقة">
+      <input id="adminCardBalance" type="number" min="0" placeholder="الرصيد الابتدائي">
+      <button class="green" onclick="adminAddCard()">إضافة البطاقة</button>
+    </section>
+
+    <section class="card">
+      <h2>💰 تعديل رصيد بطاقة</h2>
+      <input id="balanceCardNo" placeholder="رقم البطاقة">
+      <input id="balanceAmount" type="number" min="0" placeholder="المبلغ الجديد">
+      <button onclick="setBalance()">تعيين الرصيد</button>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>📋 البطاقات التي أدخلها الأدمن</h2>
+    <div style="overflow:auto"><table><thead><tr><th>رقم البطاقة</th><th>الرصيد</th><th>صاحب البطاقة</th><th>الحالة</th></tr></thead><tbody id="adminCards"></tbody></table></div>
+  </section>
+</section>
+
+<section id="userPanel" class="hidden">
+  <div class="card topbar">
+    <div><strong>مرحباً، <span id="userName"></span></strong><br><span class="note">حساب المستخدم</span></div>
+    <button class="gray" style="width:auto" onclick="logout()">خروج</button>
+  </div>
+
+  <section class="bank-card">
+    <button class="qrbtn" onclick="openQR()">QR</button>
+    <div class="chip"></div>
+    <div class="label">CARD NUMBER</div>
+    <div class="number" id="cardNumber"></div>
+    <div class="label">CARD HOLDER</div>
+    <div class="name" id="cardHolder"></div>
+  </section>
+
+  <section class="card">
+    <h2>💰 الرصيد</h2>
+    <div class="balance" id="userBalance">0 د.ع</div>
+  </section>
+
+  <div class="grid">
+    <section class="card">
+      <h2>💸 تحويل</h2>
+      <button class="green" onclick="openTransfer()">تحويل رصيد</button>
+      <p class="note">اختر التحويل بواسطة QR أو أدخل رقم بطاقة المستلم.</p>
+    </section>
+    <section class="card">
+      <h2>🔑 تغيير كلمة المرور</h2>
+      <input id="oldPass" type="password" placeholder="كلمة المرور الحالية">
+      <input id="newPass" type="password" placeholder="كلمة المرور الجديدة">
+      <button onclick="changePassword()">تغيير كلمة المرور</button>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>📋 سجل تحويلاتي</h2>
+    <div style="overflow:auto"><table><thead><tr><th>التاريخ</th><th>النوع</th><th>البطاقة</th><th>المبلغ</th></tr></thead><tbody id="userHistory"></tbody></table></div>
+  </section>
+</section>
+
+</div>
+
+<div id="modal" class="modal hidden">
+ <div class="modalbox">
+   <div class="topbar"><h2 id="modalTitle">تحويل</h2><button class="close" style="width:auto" onclick="closeModal()">إغلاق</button></div>
+   <div id="transferStep1">
+     <input id="transferAmount" type="number" min="1" placeholder="قيمة التحويل بالدينار العراقي">
+     <button class="green" onclick="nextTransfer()">التالي</button>
+   </div>
+   <div id="transferStep2" class="hidden">
+     <button onclick="startScanner()">📷 قراءة QR للمستلم</button>
+     <div id="reader"></div>
+     <hr>
+     <input id="recipientCard" placeholder="أو اكتب رقم بطاقة المستلم">
+     <button class="green" onclick="doTransfer()">تحويل الآن</button>
+   </div>
+   <div id="qrBox" class="hidden"><div id="qrcode"></div><p class="note" style="text-align:center">هذا QR يحتوي رقم بطاقتك فقط.</p></div>
+ </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const KEY="iraqi_bank_v3";
+let db=JSON.parse(localStorage.getItem(KEY)||'{"cards":{},"users":{},"transfers":[]}');
+let session=null, scanner=null;
+
+function save(){localStorage.setItem(KEY,JSON.stringify(db));render()}
+function money(n){return Number(n).toLocaleString("ar-IQ")+" د.ع"}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function toast(s){let t=document.getElementById("toast");t.textContent=s;t.style.display="block";clearTimeout(window.tt);window.tt=setTimeout(()=>t.style.display="none",2600)}
+function authMode(m){document.getElementById("loginBox").classList.toggle("hidden",m!="login");document.getElementById("registerBox").classList.toggle("hidden",m!="register");document.getElementById("loginTab").classList.toggle("active",m=="login");document.getElementById("registerTab").classList.toggle("active",m=="register")}
+
+function register(){
+ let name=document.getElementById("regName").value.trim(),card=document.getElementById("regCard").value.trim(),pass=document.getElementById("regPass").value,user=document.getElementById("regUser").value.trim();
+ if(!name||!card||!pass||!user)return toast("أكمل جميع البيانات");
+ if(!db.cards[card])return toast("البطاقة غير معتمدة من الأدمن");
+ if(db.cards[card].owner)return toast("هذه البطاقة مرتبطة بحساب مسبقاً");
+ if(db.cards[card].password!==pass)return toast("كلمة المرور غير مطابقة للكلمة التي حددها الأدمن");
+ if(db.users[user])return toast("اسم المستخدم مستخدم مسبقاً");
+ db.users[user]={name,card,password:pass};
+ db.cards[card].owner=user;
+ save();toast("تم إنشاء الحساب بنجاح");authMode("login");
+ document.getElementById("loginUser").value=user;
+}
+
+function login(){
+ let u=document.getElementById("loginUser").value.trim(),p=document.getElementById("loginPass").value;
+ if(u==="admin"&&p==="Admin123"){session={type:"admin",user:"admin"};showPanels();return}
+ if(!db.users[u]||db.users[u].password!==p)return toast("بيانات الدخول غير صحيحة");
+ session={type:"user",user:u};showPanels();
+}
+
+function showPanels(){
+ document.getElementById("auth").classList.add("hidden");
+ document.getElementById("adminPanel").classList.toggle("hidden",session.type!=="admin");
+ document.getElementById("userPanel").classList.toggle("hidden",session.type!=="user");
+ render();
+}
+function logout(){stopScanner();session=null;document.getElementById("auth").classList.remove("hidden");document.getElementById("adminPanel").classList.add("hidden");document.getElementById("userPanel").classList.add("hidden")}
+function adminAddCard(){
+ let n=document.getElementById("adminCardNo").value.trim(),p=document.getElementById("adminCardPass").value,b=Number(document.getElementById("adminCardBalance").value||0);
+ if(!n||!p)return toast("أدخل رقم البطاقة وكلمة المرور");
+ if(db.cards[n])return toast("رقم البطاقة موجود مسبقاً");
+ if(b<0)return toast("الرصيد غير صحيح");
+ db.cards[n]={number:n,password:p,balance:b,owner:null};save();toast("تمت إضافة البطاقة");
+ document.getElementById("adminCardNo").value="";document.getElementById("adminCardPass").value="";document.getElementById("adminCardBalance").value="";
+}
+function setBalance(){
+ let n=document.getElementById("balanceCardNo").value.trim(),b=Number(document.getElementById("balanceAmount").value);
+ if(!db.cards[n])return toast("البطاقة غير موجودة");
+ if(isNaN(b)||b<0)return toast("المبلغ غير صحيح");
+ db.cards[n].balance=b;save();toast("تم تحديث الرصيد بواسطة الأدمن");
+}
+function openTransfer(){
+ document.getElementById("modal").classList.remove("hidden");
+ document.getElementById("modalTitle").textContent="تحويل رصيد";
+ document.getElementById("transferStep1").classList.remove("hidden");
+ document.getElementById("transferStep2").classList.add("hidden");
+ document.getElementById("qrBox").classList.add("hidden");
+}
+function nextTransfer(){
+ let a=Number(document.getElementById("transferAmount").value);
+ if(!a||a<=0)return toast("أدخل قيمة التحويل");
+ let me=db.users[session.user];
+ if(a>db.cards[me.card].balance)return toast("الرصيد غير كافٍ");
+ document.getElementById("transferStep1").classList.add("hidden");document.getElementById("transferStep2").classList.remove("hidden");
+}
+function doTransfer(){
+ let me=db.users[session.user],to=document.getElementById("recipientCard").value.trim(),a=Number(document.getElementById("transferAmount").value);
+ if(!db.cards[to])return toast("رقم بطاقة المستلم غير موجود");
+ if(to===me.card)return toast("لا يمكن التحويل إلى بطاقتك");
+ if(!a||a<=0||a>db.cards[me.card].balance)return toast("قيمة التحويل غير صحيحة");
+ db.cards[me.card].balance-=a;db.cards[to].balance+=a;
+ db.transfers.unshift({date:new Date().toLocaleString("ar-IQ"),from:me.card,to,amount:a,sender:session.user});
+ save();closeModal();toast("تم التحويل بنجاح");
+}
+function openQR(){
+ document.getElementById("modal").classList.remove("hidden");
+ document.getElementById("modalTitle").textContent="QR الخاص ببطاقتي";
+ document.getElementById("transferStep1").classList.add("hidden");document.getElementById("transferStep2").classList.add("hidden");document.getElementById("qrBox").classList.remove("hidden");
+ let q=document.getElementById("qrcode");q.innerHTML="";
+ new QRCode(q,{text:db.users[session.user].card,width:220,height:220});
+}
+function closeModal(){stopScanner();document.getElementById("modal").classList.add("hidden")}
+function startScanner(){
+ if(scanner)return;
+ scanner=new Html5Qrcode("reader");
+ scanner.start({facingMode:"environment"},{fps:10,qrbox:220},text=>{
+   document.getElementById("recipientCard").value=text.trim();stopScanner();toast("تمت قراءة رقم بطاقة المستلم");
+ }).catch(()=>{scanner=null;toast("تعذر تشغيل الكاميرا")});
+}
+function stopScanner(){if(scanner){scanner.stop().catch(()=>{});scanner.clear().catch(()=>{});scanner=null}}
+function changePassword(){
+ let u=db.users[session.user],old=document.getElementById("oldPass").value,n=document.getElementById("newPass").value;
+ if(old!==u.password)return toast("كلمة المرور الحالية غير صحيحة");
+ if(!n)return toast("أدخل كلمة المرور الجديدة");
+ u.password=n;db.cards[u.card].password=n;save();document.getElementById("oldPass").value="";document.getElementById("newPass").value="";toast("تم تغيير كلمة المرور");
+}
+function render(){
+ if(session?.type==="admin"){
+  document.getElementById("adminCards").innerHTML=Object.values(db.cards).map(c=>`<tr><td>${esc(c.number)}</td><td>${money(c.balance)}</td><td>${c.owner?esc(db.users[c.owner]?.name||c.owner):"غير مرتبطة"}</td><td>${c.owner?"مستخدمة":"متاحة"}</td></tr>`).join("")||'<tr><td colspan="4">لا توجد بطاقات</td></tr>';
+ }
+ if(session?.type==="user"){
+  let u=db.users[session.user],c=db.cards[u.card];
+  document.getElementById("userName").textContent=u.name;document.getElementById("cardNumber").textContent=u.card;document.getElementById("cardHolder").textContent=u.name;document.getElementById("userBalance").textContent=money(c.balance);
+  let h=db.transfers.filter(x=>x.from===u.card||x.to===u.card);
+  document.getElementById("userHistory").innerHTML=h.map(x=>`<tr><td>${esc(x.date)}</td><td>${x.from===u.card?"إرسال":"استلام"}</td><td>${esc(x.from===u.card?x.to:x.from)}</td><td>${money(x.amount)}</td></tr>`).join("")||'<tr><td colspan="4">لا توجد تحويلات</td></tr>';
+ }
+}
+</script>
+</body>
+</html>
